@@ -1,0 +1,75 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id             Int         @id @default(autoincrement())
+  username       String      @unique
+  email          String      @unique
+  hashedPassword String
+  isAdmin        Boolean     @default(false)
+  avatarUrl      String?
+  createdAt      DateTime    @default(now())
+  outfits        Outfit[]
+  savedItems     SavedItem[]
+}
+
+model ClothingCategory {
+  id           Int            @id @default(autoincrement())
+  name         String
+  zone         String         // "top", "middle", "bottom"
+  displayOrder Int            @default(0)
+  items        ClothingItem[]
+}
+
+model ClothingItem {
+  id           Int              @id @default(autoincrement())
+  name         String
+  categoryId   Int
+  svgTemplate  String
+  defaultColor String           @default("#CCCCCC")
+  isActive     Boolean          @default(true)
+  createdAt    DateTime         @default(now())
+  category     ClothingCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  outfitsTop    Outfit[] @relation("TopItem")
+  outfitsMiddle Outfit[] @relation("MiddleItem")
+  outfitsBottom Outfit[] @relation("BottomItem")
+  savedItems    SavedItem[]
+}
+
+model Outfit {
+  id           Int           @id @default(autoincrement())
+  userId       Int
+  name         String
+  topItemId    Int?
+  topColor     String?
+  middleItemId Int?
+  middleColor  String?
+  bottomItemId Int?
+  bottomColor  String?
+  previewData  String?
+  createdAt    DateTime      @default(now())
+
+  user       User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  topItem    ClothingItem? @relation("TopItem", fields: [topItemId], references: [id])
+  middleItem ClothingItem? @relation("MiddleItem", fields: [middleItemId], references: [id])
+  bottomItem ClothingItem? @relation("BottomItem", fields: [bottomItemId], references: [id])
+}
+
+model SavedItem {
+  id          Int          @id @default(autoincrement())
+  userId      Int
+  itemId      Int
+  customColor String
+  name        String?
+  createdAt   DateTime     @default(now())
+
+  user User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  item ClothingItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+}

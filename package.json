@@ -1,0 +1,13 @@
+{
+  "name": "outfit-constructor",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Pinterest-style outfit constructor with mannequin, color customization, and admin panel",
+  "scripts": {
+    "install:all": "cd server && npm install && cd ../frontend && npm install",
+    "build:frontend": "cd frontend && npx vite build",
+    "dev:server": "cd server && npm run dev",
+    "dev:frontend": "cd frontend && npx vite",
+    "start": "cd server && npm start"
+  }
+}
