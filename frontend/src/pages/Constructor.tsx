@@ -1,7 +1,7 @@
 import { useState, useEffect, CSSProperties } from "react";
 import api from "../services/api";
 import ColorPicker from "../components/ColorPicker";
-import ClothingPreview from "../components/ClothingPreview";
+import ClothingPreview, { getZoneNames } from "../components/ClothingPreview";
 
 interface ClothingItem {
   id: number;
@@ -15,7 +15,7 @@ interface ClothingItem {
 
 interface ZoneState {
   selectedItem: ClothingItem | null;
-  color: string;
+  colors: string[]; // array of colors, one per SVG zone
 }
 
 const zones = [
@@ -26,6 +26,17 @@ const zones = [
 
 type ZoneKey = (typeof zones)[number]["key"];
 
+// Mannequin body silhouette SVG
+const mannequinBodySvg = `<svg viewBox="0 0 300 650" xmlns="http://www.w3.org/2000/svg" style="opacity:0.18">
+  <ellipse cx="150" cy="58" rx="34" ry="42" fill="#c9a882" stroke="#b8956e" stroke-width="1.5"/>
+  <rect x="139" y="100" width="22" height="22" rx="6" fill="#c9a882"/>
+  <path d="M139 120 L75 142 L65 158 L62 175 L78 172 L85 155 L139 142 L139 340 L161 340 L161 142 L215 155 L222 172 L238 175 L235 158 L225 142 L161 120" fill="#c9a882" stroke="#b8956e" stroke-width="1.2"/>
+  <path d="M62 175 L55 290 L52 318 L68 320 L72 295 L78 175" fill="#c9a882" stroke="#b8956e" stroke-width="1.2"/>
+  <path d="M238 175 L245 290 L248 318 L232 320 L228 295 L222 175" fill="#c9a882" stroke="#b8956e" stroke-width="1.2"/>
+  <path d="M120 340 L115 480 L108 560 L132 564 L135 485 L142 345" fill="#c9a882" stroke="#b8956e" stroke-width="1.2"/>
+  <path d="M180 340 L185 480 L192 560 L168 564 L165 485 L158 345" fill="#c9a882" stroke="#b8956e" stroke-width="1.2"/>
+</svg>`;
+
 const s: Record<string, CSSProperties> = {
   page: {
     display: "flex",
@@ -33,7 +44,7 @@ const s: Record<string, CSSProperties> = {
     overflow: "hidden",
   },
   sidebar: {
-    width: "320px",
+    width: "340px",
     borderRight: "1px solid var(--border)",
     display: "flex",
     flexDirection: "column",
@@ -95,6 +106,25 @@ const s: Record<string, CSSProperties> = {
     fontWeight: 600,
     marginBottom: "12px",
   },
+  zoneColorRow: {
+    marginBottom: "16px",
+  },
+  zoneLabel: {
+    fontSize: "13px",
+    fontWeight: 600,
+    color: "#555",
+    marginBottom: "8px",
+    display: "flex",
+    alignItems: "center",
+    gap: "6px",
+  },
+  zoneDot: {
+    width: "14px",
+    height: "14px",
+    borderRadius: "50%",
+    border: "2px solid #333",
+    display: "inline-block",
+  },
   center: {
     flex: 1,
     display: "flex",
@@ -104,31 +134,35 @@ const s: Record<string, CSSProperties> = {
     background: "var(--bg-secondary)",
     position: "relative",
   },
-  mannequin: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    gap: "4px",
-    padding: "20px",
+  mannequinContainer: {
+    position: "relative",
+    width: "320px",
+    height: "580px",
   },
-  mannequinZone: {
+  mannequinBody: {
+    position: "absolute",
+    inset: 0,
     display: "flex",
-    flexDirection: "column",
     alignItems: "center",
+    justifyContent: "center",
+    pointerEvents: "none",
+  },
+  mannequinSlot: {
+    position: "absolute",
+    left: "50%",
+    transform: "translateX(-50%)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
     cursor: "pointer",
     borderRadius: "12px",
-    padding: "8px",
     transition: "all 0.2s",
-    minHeight: "80px",
-    justifyContent: "center",
   },
-  mannequinZoneActive: {
-    background: "rgba(230, 0, 35, 0.05)",
+  mannequinSlotActive: {
+    background: "rgba(230, 0, 35, 0.06)",
     outline: "2px dashed var(--primary)",
   },
-  placeholder: {
-    width: "140px",
-    height: "80px",
+  placeholderSlot: {
     border: "2px dashed var(--border)",
     borderRadius: "12px",
     display: "flex",
@@ -136,10 +170,12 @@ const s: Record<string, CSSProperties> = {
     justifyContent: "center",
     color: "var(--text-secondary)",
     fontSize: "13px",
+    width: "100%",
+    height: "100%",
   },
   actions: {
     position: "absolute",
-    bottom: "24px",
+    bottom: "16px",
     display: "flex",
     gap: "12px",
   },
@@ -152,6 +188,7 @@ const s: Record<string, CSSProperties> = {
     background: "var(--primary)",
     border: "none",
     boxShadow: "0 4px 15px rgba(230, 0, 35, 0.3)",
+    cursor: "pointer",
   },
   btnSecondary: {
     padding: "12px 28px",
@@ -161,6 +198,7 @@ const s: Record<string, CSSProperties> = {
     color: "var(--text)",
     background: "#fff",
     border: "2px solid var(--border)",
+    cursor: "pointer",
   },
   saveModal: {
     position: "fixed",
@@ -190,6 +228,7 @@ const s: Record<string, CSSProperties> = {
     border: "2px solid var(--border)",
     fontSize: "14px",
     marginBottom: "16px",
+    boxSizing: "border-box" as const,
   },
   saveModalBtns: {
     display: "flex",
@@ -210,13 +249,20 @@ const s: Record<string, CSSProperties> = {
   },
 };
 
+// Slot positions on mannequin (top, left offsets relative to container)
+const slotPositions: Record<ZoneKey, CSSProperties> = {
+  top: { top: "0px", width: "200px", height: "130px" },
+  middle: { top: "115px", width: "260px", height: "240px" },
+  bottom: { top: "330px", width: "240px", height: "240px" },
+};
+
 export default function Constructor() {
   const [items, setItems] = useState<ClothingItem[]>([]);
   const [activeZone, setActiveZone] = useState<ZoneKey>("top");
   const [zoneStates, setZoneStates] = useState<Record<ZoneKey, ZoneState>>({
-    top: { selectedItem: null, color: "#CCCCCC" },
-    middle: { selectedItem: null, color: "#CCCCCC" },
-    bottom: { selectedItem: null, color: "#CCCCCC" },
+    top: { selectedItem: null, colors: ["#CCCCCC"] },
+    middle: { selectedItem: null, colors: ["#CCCCCC"] },
+    bottom: { selectedItem: null, colors: ["#CCCCCC"] },
   });
   const [showSaveOutfit, setShowSaveOutfit] = useState(false);
   const [showSaveItem, setShowSaveItem] = useState(false);
@@ -230,17 +276,22 @@ export default function Constructor() {
   const filteredItems = items.filter((i) => i.category.zone === activeZone);
 
   const selectItem = (item: ClothingItem) => {
+    const colors = item.defaultColor.split(",");
     setZoneStates((prev) => ({
       ...prev,
-      [activeZone]: { selectedItem: item, color: item.defaultColor },
+      [activeZone]: { selectedItem: item, colors },
     }));
   };
 
-  const changeColor = (color: string) => {
-    setZoneStates((prev) => ({
-      ...prev,
-      [activeZone]: { ...prev[activeZone], color },
-    }));
+  const changeZoneColor = (zoneIndex: number, color: string) => {
+    setZoneStates((prev) => {
+      const newColors = [...prev[activeZone].colors];
+      newColors[zoneIndex] = color;
+      return {
+        ...prev,
+        [activeZone]: { ...prev[activeZone], colors: newColors },
+      };
+    });
   };
 
   const showToast = (msg: string) => {
@@ -254,14 +305,16 @@ export default function Constructor() {
       await api.post("/outfits", {
         name: saveName,
         topItemId: zoneStates.top.selectedItem?.id || null,
-        topColor: zoneStates.top.selectedItem ? zoneStates.top.color : null,
+        topColor: zoneStates.top.selectedItem
+          ? zoneStates.top.colors.join(",")
+          : null,
         middleItemId: zoneStates.middle.selectedItem?.id || null,
         middleColor: zoneStates.middle.selectedItem
-          ? zoneStates.middle.color
+          ? zoneStates.middle.colors.join(",")
           : null,
         bottomItemId: zoneStates.bottom.selectedItem?.id || null,
         bottomColor: zoneStates.bottom.selectedItem
-          ? zoneStates.bottom.color
+          ? zoneStates.bottom.colors.join(",")
           : null,
       });
       setShowSaveOutfit(false);
@@ -278,7 +331,7 @@ export default function Constructor() {
     try {
       await api.post("/saved-items", {
         itemId: zone.selectedItem.id,
-        customColor: zone.color,
+        customColor: zone.colors.join(","),
         name: saveName,
       });
       setShowSaveItem(false);
@@ -291,11 +344,17 @@ export default function Constructor() {
 
   const clearAll = () => {
     setZoneStates({
-      top: { selectedItem: null, color: "#CCCCCC" },
-      middle: { selectedItem: null, color: "#CCCCCC" },
-      bottom: { selectedItem: null, color: "#CCCCCC" },
+      top: { selectedItem: null, colors: ["#CCCCCC"] },
+      middle: { selectedItem: null, colors: ["#CCCCCC"] },
+      bottom: { selectedItem: null, colors: ["#CCCCCC"] },
     });
   };
+
+  // Get zone names for the active item
+  const activeState = zoneStates[activeZone];
+  const activeZoneNames = activeState.selectedItem
+    ? getZoneNames(activeState.selectedItem.svgTemplate)
+    : [];
 
   return (
     <div style={s.page}>
@@ -321,36 +380,56 @@ export default function Constructor() {
         </div>
 
         <div style={s.itemsGrid}>
-          {filteredItems.map((item) => (
-            <div key={item.id} style={s.itemCard} onClick={() => selectItem(item)}>
-              <ClothingPreview
-                svgTemplate={item.svgTemplate}
-                color={
-                  zoneStates[activeZone].selectedItem?.id === item.id
-                    ? zoneStates[activeZone].color
-                    : item.defaultColor
-                }
-                size={100}
-                selected={zoneStates[activeZone].selectedItem?.id === item.id}
-              />
-              <span style={s.itemName}>{item.name}</span>
-            </div>
-          ))}
+          {filteredItems.map((item) => {
+            const isSelected =
+              zoneStates[activeZone].selectedItem?.id === item.id;
+            const displayColors = isSelected
+              ? zoneStates[activeZone].colors.join(",")
+              : item.defaultColor;
+            return (
+              <div
+                key={item.id}
+                style={s.itemCard}
+                onClick={() => selectItem(item)}
+              >
+                <ClothingPreview
+                  svgTemplate={item.svgTemplate}
+                  color={displayColors}
+                  size={120}
+                  selected={isSelected}
+                />
+                <span style={s.itemName}>{item.name}</span>
+              </div>
+            );
+          })}
         </div>
 
-        {zoneStates[activeZone].selectedItem && (
+        {activeState.selectedItem && (
           <div style={s.colorSection}>
             <div style={s.colorTitle}>
-              Цвет: {zoneStates[activeZone].selectedItem!.name}
+              Цвета: {activeState.selectedItem.name}
             </div>
-            <ColorPicker
-              color={zoneStates[activeZone].color}
-              onChange={changeColor}
-            />
+            {activeZoneNames.map((zoneName, i) => (
+              <div key={i} style={s.zoneColorRow}>
+                <div style={s.zoneLabel}>
+                  <span
+                    style={{
+                      ...s.zoneDot,
+                      backgroundColor: activeState.colors[i] || "#CCC",
+                    }}
+                  />
+                  {zoneName}
+                </div>
+                <ColorPicker
+                  color={activeState.colors[i] || "#CCCCCC"}
+                  onChange={(c) => changeZoneColor(i, c)}
+                />
+              </div>
+            ))}
             <button
               style={{ ...s.btnSecondary, width: "100%", marginTop: "12px" }}
               onClick={() => {
-                setSaveName(zoneStates[activeZone].selectedItem!.name);
+                setSaveName(activeState.selectedItem!.name);
                 setShowSaveItem(true);
               }}
             >
@@ -362,26 +441,42 @@ export default function Constructor() {
 
       {/* Center: Mannequin */}
       <div style={s.center}>
-        <div style={s.mannequin}>
+        <div style={s.mannequinContainer}>
+          {/* Body silhouette */}
+          <div
+            style={s.mannequinBody}
+            dangerouslySetInnerHTML={{ __html: mannequinBodySvg }}
+          />
+
+          {/* Clothing slots */}
           {zones.map((z) => {
             const state = zoneStates[z.key];
             return (
               <div
                 key={z.key}
                 style={{
-                  ...s.mannequinZone,
-                  ...(activeZone === z.key ? s.mannequinZoneActive : {}),
+                  ...s.mannequinSlot,
+                  ...slotPositions[z.key],
+                  ...(activeZone === z.key ? s.mannequinSlotActive : {}),
                 }}
                 onClick={() => setActiveZone(z.key)}
               >
                 {state.selectedItem ? (
                   <ClothingPreview
                     svgTemplate={state.selectedItem.svgTemplate}
-                    color={state.color}
-                    size={z.key === "middle" ? 180 : z.key === "bottom" ? 180 : 120}
+                    color={state.colors.join(",")}
+                    size={
+                      z.key === "top"
+                        ? 130
+                        : z.key === "middle"
+                        ? 230
+                        : 230
+                    }
                   />
                 ) : (
-                  <div style={s.placeholder}>{z.icon} {z.label}</div>
+                  <div style={s.placeholderSlot}>
+                    {z.icon} {z.label}
+                  </div>
                 )}
               </div>
             );

@@ -218,21 +218,21 @@ export default function MyOutfits() {
                       <ClothingPreview
                         svgTemplate={outfit.topItem.svgTemplate}
                         color={outfit.topColor || "#CCC"}
-                        size={80}
+                        size={90}
                       />
                     )}
                     {outfit.middleItem && (
                       <ClothingPreview
                         svgTemplate={outfit.middleItem.svgTemplate}
                         color={outfit.middleColor || "#CCC"}
-                        size={120}
+                        size={140}
                       />
                     )}
                     {outfit.bottomItem && (
                       <ClothingPreview
                         svgTemplate={outfit.bottomItem.svgTemplate}
                         color={outfit.bottomColor || "#CCC"}
-                        size={120}
+                        size={140}
                       />
                     )}
                   </div>
@@ -267,7 +267,7 @@ export default function MyOutfits() {
                   <ClothingPreview
                     svgTemplate={si.item.svgTemplate}
                     color={si.customColor}
-                    size={120}
+                    size={150}
                   />
                   <div style={{ textAlign: "center" }}>
                     <div style={s.cardTitle}>
@@ -278,23 +278,25 @@ export default function MyOutfits() {
                       style={{
                         display: "flex",
                         alignItems: "center",
-                        gap: "8px",
+                        gap: "4px",
                         justifyContent: "center",
                         marginBottom: "8px",
+                        flexWrap: "wrap",
                       }}
                     >
-                      <div
-                        style={{
-                          width: "20px",
-                          height: "20px",
-                          borderRadius: "50%",
-                          background: si.customColor,
-                          border: "2px solid var(--border)",
-                        }}
-                      />
-                      <span style={{ fontSize: "13px", fontFamily: "monospace" }}>
-                        {si.customColor}
-                      </span>
+                      {si.customColor.split(",").map((c, idx) => (
+                        <div
+                          key={idx}
+                          style={{
+                            width: "18px",
+                            height: "18px",
+                            borderRadius: "50%",
+                            background: c,
+                            border: "2px solid var(--border)",
+                          }}
+                          title={c}
+                        />
+                      ))}
                     </div>
                     <button
                       style={s.deleteBtn}
