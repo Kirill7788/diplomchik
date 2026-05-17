@@ -1,4 +1,4 @@
-import { useState, useEffect, CSSProperties } from "react";
+import { useState, useEffect, useRef, CSSProperties } from "react";
 import api from "../services/api";
 import ClothingPreview from "../components/ClothingPreview";
 
@@ -101,6 +101,7 @@ const s: Record<string, CSSProperties> = {
     color: "#fff",
     background: "var(--primary)",
     border: "none",
+    cursor: "pointer",
   },
   modal: {
     position: "fixed",
@@ -140,6 +141,7 @@ const s: Record<string, CSSProperties> = {
     borderRadius: "8px",
     border: "2px solid var(--border)",
     fontSize: "14px",
+    boxSizing: "border-box",
   },
   textarea: {
     width: "100%",
@@ -150,6 +152,7 @@ const s: Record<string, CSSProperties> = {
     fontFamily: "monospace",
     minHeight: "120px",
     resize: "vertical" as const,
+    boxSizing: "border-box",
   },
   select: {
     width: "100%",
@@ -158,6 +161,7 @@ const s: Record<string, CSSProperties> = {
     border: "2px solid var(--border)",
     fontSize: "14px",
     background: "#fff",
+    boxSizing: "border-box",
   },
   modalBtns: {
     display: "flex",
@@ -181,6 +185,7 @@ export default function Admin() {
   const [showAddItem, setShowAddItem] = useState(false);
   const [showAddCategory, setShowAddCategory] = useState(false);
   const [editItem, setEditItem] = useState<Item | null>(null);
+  const svgFileRef = useRef<HTMLInputElement>(null);
 
   // Form state
   const [formName, setFormName] = useState("");
@@ -188,7 +193,7 @@ export default function Admin() {
   const [formSvg, setFormSvg] = useState("");
   const [formColor, setFormColor] = useState("#CCCCCC");
   const [formCatName, setFormCatName] = useState("");
-  const [formCatZone, setFormCatZone] = useState("top");
+  const [formCatZone, setFormCatZone] = useState("");
   const [toast, setToast] = useState("");
 
   const fetchData = async () => {
@@ -210,13 +215,14 @@ export default function Admin() {
   };
 
   const handleAddCategory = async () => {
-    if (!formCatName) return;
+    if (!formCatName || !formCatZone) return;
     await api.post("/admin/categories", {
       name: formCatName,
       zone: formCatZone,
     });
     setShowAddCategory(false);
     setFormCatName("");
+    setFormCatZone("");
     fetchData();
     showToast("Категория добавлена");
   };
@@ -283,6 +289,21 @@ export default function Admin() {
     setEditItem(item);
   };
 
+  const handleSvgFileImport = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const text = ev.target?.result as string;
+      if (text) setFormSvg(text.trim());
+    };
+    reader.readAsText(file);
+    e.target.value = "";
+  };
+
+  // Get unique zones from existing categories
+  const existingZones = [...new Set(categories.map((c) => c.zone))];
+
   return (
     <div style={s.page}>
       <h1 style={s.title}>Панель администратора</h1>
@@ -295,7 +316,7 @@ export default function Admin() {
         <div style={s.sectionTitle}>
           <span>Категории</span>
           <button style={s.btnAdd} onClick={() => setShowAddCategory(true)}>
-            + Добавить
+            + Добавить категорию
           </button>
         </div>
         <table style={s.table}>
@@ -350,7 +371,7 @@ export default function Admin() {
               setShowAddItem(true);
             }}
           >
-            + Добавить
+            + Добавить элемент
           </button>
         </div>
         <table style={s.table}>
@@ -378,18 +399,18 @@ export default function Admin() {
                 <td style={s.td}>{item.category?.name || "—"}</td>
                 <td style={s.td}>
                   <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                    <div
-                      style={{
-                        width: "16px",
-                        height: "16px",
-                        borderRadius: "50%",
-                        background: item.defaultColor,
-                        border: "1px solid var(--border)",
-                      }}
-                    />
-                    <span style={{ fontSize: "12px", fontFamily: "monospace" }}>
-                      {item.defaultColor}
-                    </span>
+                    {item.defaultColor.split(",").map((c, idx) => (
+                      <div
+                        key={idx}
+                        style={{
+                          width: "16px",
+                          height: "16px",
+                          borderRadius: "50%",
+                          background: c.trim(),
+                          border: "1px solid var(--border)",
+                        }}
+                      />
+                    ))}
                   </div>
                 </td>
                 <td style={s.td}>
@@ -447,16 +468,34 @@ export default function Admin() {
               />
             </div>
             <div style={s.field}>
-              <label style={s.label}>Зона</label>
-              <select
-                style={s.select}
+              <label style={s.label}>Зона (идентификатор)</label>
+              <input
+                style={s.input}
                 value={formCatZone}
                 onChange={(e) => setFormCatZone(e.target.value)}
-              >
-                <option value="top">Верх (голова)</option>
-                <option value="middle">Середина (торс)</option>
-                <option value="bottom">Низ (ноги)</option>
-              </select>
+                placeholder="Например: top, middle, bottom, shoes или своя"
+              />
+              {existingZones.length > 0 && (
+                <div style={{ marginTop: "8px", display: "flex", gap: "6px", flexWrap: "wrap" }}>
+                  <span style={{ fontSize: "12px", color: "var(--text-secondary)" }}>Существующие:</span>
+                  {existingZones.map((z) => (
+                    <button
+                      key={z}
+                      onClick={() => setFormCatZone(z)}
+                      style={{
+                        ...s.btnSmall,
+                        background: formCatZone === z ? "var(--primary)" : "#e0f2fe",
+                        color: formCatZone === z ? "#fff" : "#0369a1",
+                        fontSize: "11px",
+                        padding: "3px 10px",
+                        marginRight: 0,
+                      }}
+                    >
+                      {z}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
             <div style={s.modalBtns}>
               <button
@@ -523,28 +562,58 @@ export default function Admin() {
             </div>
             <div style={s.field}>
               <label style={s.label}>SVG шаблон</label>
+              <div style={{ display: "flex", gap: "8px", marginBottom: "8px" }}>
+                <button
+                  style={{
+                    ...s.btnSmall,
+                    background: "#e0f2fe",
+                    color: "#0369a1",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "4px",
+                  }}
+                  onClick={() => svgFileRef.current?.click()}
+                >
+                  📁 Импорт SVG файла
+                </button>
+                <input
+                  ref={svgFileRef}
+                  type="file"
+                  accept=".svg"
+                  style={{ display: "none" }}
+                  onChange={handleSvgFileImport}
+                />
+              </div>
               <textarea
                 style={s.textarea}
                 value={formSvg}
                 onChange={(e) => setFormSvg(e.target.value)}
-                placeholder='<svg viewBox="0 0 200 200">...</svg> (используйте FILL_COLOR для заливки)'
+                placeholder='<svg viewBox="0 0 300 320">...</svg> (используйте FILL_COLOR_1, FILL_COLOR_2, FILL_COLOR_3 для заливки)'
               />
             </div>
             <div style={s.field}>
-              <label style={s.label}>Цвет по умолчанию</label>
+              <label style={s.label}>Цвета по умолчанию (через запятую)</label>
               <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                 <input
-                  type="color"
+                  style={{ ...s.input, flex: 1 }}
                   value={formColor}
                   onChange={(e) => setFormColor(e.target.value)}
-                  style={{ width: "48px", height: "36px", border: "none", cursor: "pointer" }}
+                  placeholder="#FF0000,#00FF00,#0000FF"
                 />
-                <input
-                  style={{ ...s.input, width: "120px" }}
-                  value={formColor}
-                  onChange={(e) => setFormColor(e.target.value)}
-                  placeholder="#CCCCCC"
-                />
+              </div>
+              <div style={{ marginTop: "8px", display: "flex", gap: "6px" }}>
+                {formColor.split(",").map((c, idx) => (
+                  <div
+                    key={idx}
+                    style={{
+                      width: "24px",
+                      height: "24px",
+                      borderRadius: "50%",
+                      background: c.trim(),
+                      border: "2px solid var(--border)",
+                    }}
+                  />
+                ))}
               </div>
             </div>
             <div style={s.modalBtns}>

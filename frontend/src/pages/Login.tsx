@@ -135,6 +135,11 @@ export default function Login() {
           </button>
         </form>
         <p style={styles.link}>
+          <Link to="/forgot-password" style={styles.linkA}>
+            Забыли пароль?
+          </Link>
+        </p>
+        <p style={styles.link}>
           Нет аккаунта?{" "}
           <Link to="/register" style={styles.linkA}>
             Зарегистрироваться

@@ -14,6 +14,8 @@ model User {
   hashedPassword String
   isAdmin        Boolean     @default(false)
   avatarUrl      String?
+  resetToken     String?
+  resetTokenExp  DateTime?
   createdAt      DateTime    @default(now())
   outfits        Outfit[]
   savedItems     SavedItem[]
@@ -22,7 +24,7 @@ model User {
 model ClothingCategory {
   id           Int            @id @default(autoincrement())
   name         String
-  zone         String         // "top", "middle", "bottom"
+  zone         String
   displayOrder Int            @default(0)
   items        ClothingItem[]
 }
@@ -40,6 +42,7 @@ model ClothingItem {
   outfitsTop    Outfit[] @relation("TopItem")
   outfitsMiddle Outfit[] @relation("MiddleItem")
   outfitsBottom Outfit[] @relation("BottomItem")
+  outfitsShoes  Outfit[] @relation("ShoesItem")
   savedItems    SavedItem[]
 }
 
@@ -53,13 +56,17 @@ model Outfit {
   middleColor  String?
   bottomItemId Int?
   bottomColor  String?
+  shoesItemId  Int?
+  shoesColor   String?
   previewData  String?
   createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @default(now())
 
   user       User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   topItem    ClothingItem? @relation("TopItem", fields: [topItemId], references: [id])
   middleItem ClothingItem? @relation("MiddleItem", fields: [middleItemId], references: [id])
   bottomItem ClothingItem? @relation("BottomItem", fields: [bottomItemId], references: [id])
+  shoesItem  ClothingItem? @relation("ShoesItem", fields: [shoesItemId], references: [id])
 }
 
 model SavedItem {
@@ -72,4 +79,13 @@ model SavedItem {
 
   user User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   item ClothingItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+}
+
+model ContactMessage {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String
+  subject   String
+  message   String
+  createdAt DateTime @default(now())
 }

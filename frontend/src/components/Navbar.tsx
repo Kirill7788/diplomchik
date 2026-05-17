@@ -106,6 +106,9 @@ export default function Navbar() {
             )}
           </>
         )}
+        <Link to="/contact" style={styles.link}>
+          Контакты
+        </Link>
       </div>
 
       <div style={styles.links}>

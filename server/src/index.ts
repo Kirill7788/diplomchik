@@ -6,6 +6,7 @@ import clothingRouter from "./routes/clothing";
 import outfitRouter from "./routes/outfits";
 import savedItemsRouter from "./routes/savedItems";
 import adminRouter from "./routes/admin";
+import contactRouter from "./routes/contact";
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -19,6 +20,7 @@ app.use("/api/clothing", clothingRouter);
 app.use("/api/outfits", outfitRouter);
 app.use("/api/saved-items", savedItemsRouter);
 app.use("/api/admin", adminRouter);
+app.use("/api/contact", contactRouter);
 
 // Serve static frontend in production
 const frontendPath = path.join(__dirname, "../../frontend/dist");

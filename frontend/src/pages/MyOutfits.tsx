@@ -5,12 +5,14 @@ import ClothingPreview from "../components/ClothingPreview";
 interface Outfit {
   id: number;
   name: string;
-  topItem: { svgTemplate: string } | null;
+  topItem: { id: number; svgTemplate: string; name: string } | null;
   topColor: string | null;
-  middleItem: { svgTemplate: string } | null;
+  middleItem: { id: number; svgTemplate: string; name: string } | null;
   middleColor: string | null;
-  bottomItem: { svgTemplate: string } | null;
+  bottomItem: { id: number; svgTemplate: string; name: string } | null;
   bottomColor: string | null;
+  shoesItem: { id: number; svgTemplate: string; name: string } | null;
+  shoesColor: string | null;
   createdAt: string;
 }
 
@@ -97,6 +99,10 @@ const s: Record<string, CSSProperties> = {
     color: "var(--text-secondary)",
     marginBottom: "12px",
   },
+  cardBtns: {
+    display: "flex",
+    gap: "8px",
+  },
   deleteBtn: {
     padding: "6px 16px",
     borderRadius: "20px",
@@ -105,7 +111,17 @@ const s: Record<string, CSSProperties> = {
     color: "var(--primary)",
     background: "#fef2f2",
     border: "none",
-    transition: "background 0.2s",
+    cursor: "pointer",
+  },
+  editBtn: {
+    padding: "6px 16px",
+    borderRadius: "20px",
+    fontSize: "12px",
+    fontWeight: 600,
+    color: "#0369a1",
+    background: "#e0f2fe",
+    border: "none",
+    cursor: "pointer",
   },
   empty: {
     textAlign: "center",
@@ -127,6 +143,72 @@ const s: Record<string, CSSProperties> = {
     padding: "20px",
     gap: "12px",
   },
+  modal: {
+    position: "fixed",
+    inset: 0,
+    background: "rgba(0,0,0,0.5)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 2000,
+  },
+  modalCard: {
+    background: "#fff",
+    borderRadius: "var(--radius)",
+    padding: "32px",
+    width: "400px",
+    maxWidth: "90vw",
+  },
+  modalTitle: {
+    fontSize: "20px",
+    fontWeight: 700,
+    marginBottom: "20px",
+  },
+  input: {
+    width: "100%",
+    padding: "12px 16px",
+    borderRadius: "8px",
+    border: "2px solid var(--border)",
+    fontSize: "14px",
+    marginBottom: "16px",
+    boxSizing: "border-box" as const,
+  },
+  modalBtns: {
+    display: "flex",
+    gap: "12px",
+    justifyContent: "flex-end",
+  },
+  btnSave: {
+    padding: "10px 24px",
+    borderRadius: "24px",
+    fontSize: "14px",
+    fontWeight: 600,
+    color: "#fff",
+    background: "var(--primary)",
+    border: "none",
+    cursor: "pointer",
+  },
+  btnCancel: {
+    padding: "10px 24px",
+    borderRadius: "24px",
+    fontSize: "14px",
+    fontWeight: 600,
+    color: "var(--text)",
+    background: "var(--bg-secondary)",
+    border: "none",
+    cursor: "pointer",
+  },
+  toast: {
+    position: "fixed",
+    bottom: "24px",
+    right: "24px",
+    background: "#333",
+    color: "#fff",
+    padding: "12px 24px",
+    borderRadius: "12px",
+    fontSize: "14px",
+    zIndex: 3000,
+  },
 };
 
 export default function MyOutfits() {
@@ -134,6 +216,9 @@ export default function MyOutfits() {
   const [outfits, setOutfits] = useState<Outfit[]>([]);
   const [savedItems, setSavedItems] = useState<SavedItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [editingOutfit, setEditingOutfit] = useState<Outfit | null>(null);
+  const [editName, setEditName] = useState("");
+  const [toast, setToast] = useState("");
 
   const fetchData = async () => {
     setLoading(true);
@@ -155,14 +240,42 @@ export default function MyOutfits() {
     fetchData();
   }, []);
 
+  const showToast = (msg: string) => {
+    setToast(msg);
+    setTimeout(() => setToast(""), 3000);
+  };
+
   const deleteOutfit = async (id: number) => {
+    if (!confirm("Удалить образ?")) return;
     await api.delete(`/outfits/${id}`);
     setOutfits((prev) => prev.filter((o) => o.id !== id));
+    showToast("Образ удалён");
   };
 
   const deleteSavedItem = async (id: number) => {
+    if (!confirm("Удалить элемент?")) return;
     await api.delete(`/saved-items/${id}`);
     setSavedItems((prev) => prev.filter((i) => i.id !== id));
+    showToast("Элемент удалён");
+  };
+
+  const openEdit = (outfit: Outfit) => {
+    setEditName(outfit.name);
+    setEditingOutfit(outfit);
+  };
+
+  const saveEdit = async () => {
+    if (!editingOutfit || !editName.trim()) return;
+    try {
+      await api.put(`/outfits/${editingOutfit.id}`, { name: editName });
+      setOutfits((prev) =>
+        prev.map((o) => (o.id === editingOutfit.id ? { ...o, name: editName } : o))
+      );
+      setEditingOutfit(null);
+      showToast("Образ обновлён");
+    } catch {
+      showToast("Ошибка обновления");
+    }
   };
 
   const formatDate = (d: string) =>
@@ -218,33 +331,45 @@ export default function MyOutfits() {
                       <ClothingPreview
                         svgTemplate={outfit.topItem.svgTemplate}
                         color={outfit.topColor || "#CCC"}
-                        size={90}
+                        size={100}
                       />
                     )}
                     {outfit.middleItem && (
                       <ClothingPreview
                         svgTemplate={outfit.middleItem.svgTemplate}
                         color={outfit.middleColor || "#CCC"}
-                        size={140}
+                        size={160}
                       />
                     )}
                     {outfit.bottomItem && (
                       <ClothingPreview
                         svgTemplate={outfit.bottomItem.svgTemplate}
                         color={outfit.bottomColor || "#CCC"}
-                        size={140}
+                        size={160}
+                      />
+                    )}
+                    {outfit.shoesItem && (
+                      <ClothingPreview
+                        svgTemplate={outfit.shoesItem.svgTemplate}
+                        color={outfit.shoesColor || "#CCC"}
+                        size={80}
                       />
                     )}
                   </div>
                   <div style={s.cardBody}>
                     <div style={s.cardTitle}>{outfit.name}</div>
                     <div style={s.cardDate}>{formatDate(outfit.createdAt)}</div>
-                    <button
-                      style={s.deleteBtn}
-                      onClick={() => deleteOutfit(outfit.id)}
-                    >
-                      Удалить
-                    </button>
+                    <div style={s.cardBtns}>
+                      <button style={s.editBtn} onClick={() => openEdit(outfit)}>
+                        Редактировать
+                      </button>
+                      <button
+                        style={s.deleteBtn}
+                        onClick={() => deleteOutfit(outfit.id)}
+                      >
+                        Удалить
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -267,7 +392,7 @@ export default function MyOutfits() {
                   <ClothingPreview
                     svgTemplate={si.item.svgTemplate}
                     color={si.customColor}
-                    size={150}
+                    size={160}
                   />
                   <div style={{ textAlign: "center" }}>
                     <div style={s.cardTitle}>
@@ -311,6 +436,33 @@ export default function MyOutfits() {
           )}
         </>
       )}
+
+      {/* Edit Outfit Modal */}
+      {editingOutfit && (
+        <div style={s.modal} onClick={() => setEditingOutfit(null)}>
+          <div style={s.modalCard} onClick={(e) => e.stopPropagation()}>
+            <div style={s.modalTitle}>Редактировать образ</div>
+            <input
+              style={s.input}
+              placeholder="Название образа"
+              value={editName}
+              onChange={(e) => setEditName(e.target.value)}
+              autoFocus
+              onKeyDown={(e) => e.key === "Enter" && saveEdit()}
+            />
+            <div style={s.modalBtns}>
+              <button style={s.btnCancel} onClick={() => setEditingOutfit(null)}>
+                Отмена
+              </button>
+              <button style={s.btnSave} onClick={saveEdit}>
+                Сохранить
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {toast && <div style={s.toast}>{toast}</div>}
     </div>
   );
 }

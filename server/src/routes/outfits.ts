@@ -5,16 +5,19 @@ import { authenticateToken, AuthRequest } from "../middleware/auth";
 const router = Router();
 const prisma = new PrismaClient();
 
+const outfitInclude = {
+  topItem: { include: { category: true } },
+  middleItem: { include: { category: true } },
+  bottomItem: { include: { category: true } },
+  shoesItem: { include: { category: true } },
+};
+
 // Get user's outfits
 router.get("/", authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
     const outfits = await prisma.outfit.findMany({
       where: { userId: req.user!.id },
-      include: {
-        topItem: { include: { category: true } },
-        middleItem: { include: { category: true } },
-        bottomItem: { include: { category: true } },
-      },
+      include: outfitInclude,
       orderBy: { createdAt: "desc" },
     });
     res.json(outfits);
@@ -28,14 +31,8 @@ router.get("/", authenticateToken, async (req: AuthRequest, res: Response) => {
 router.post("/", authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
     const {
-      name,
-      topItemId,
-      topColor,
-      middleItemId,
-      middleColor,
-      bottomItemId,
-      bottomColor,
-      previewData,
+      name, topItemId, topColor, middleItemId, middleColor,
+      bottomItemId, bottomColor, shoesItemId, shoesColor, previewData,
     } = req.body;
 
     if (!name) {
@@ -53,13 +50,11 @@ router.post("/", authenticateToken, async (req: AuthRequest, res: Response) => {
         middleColor: middleColor || null,
         bottomItemId: bottomItemId || null,
         bottomColor: bottomColor || null,
+        shoesItemId: shoesItemId || null,
+        shoesColor: shoesColor || null,
         previewData: previewData || null,
       },
-      include: {
-        topItem: { include: { category: true } },
-        middleItem: { include: { category: true } },
-        bottomItem: { include: { category: true } },
-      },
+      include: outfitInclude,
     });
     res.status(201).json(outfit);
   } catch (error) {
@@ -67,6 +62,49 @@ router.post("/", authenticateToken, async (req: AuthRequest, res: Response) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
+// Update outfit
+router.put(
+  "/:id",
+  authenticateToken,
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      const existing = await prisma.outfit.findUnique({ where: { id } });
+
+      if (!existing || existing.userId !== req.user!.id) {
+        res.status(404).json({ error: "Outfit not found" });
+        return;
+      }
+
+      const {
+        name, topItemId, topColor, middleItemId, middleColor,
+        bottomItemId, bottomColor, shoesItemId, shoesColor,
+      } = req.body;
+
+      const outfit = await prisma.outfit.update({
+        where: { id },
+        data: {
+          name: name ?? existing.name,
+          topItemId: topItemId !== undefined ? (topItemId || null) : existing.topItemId,
+          topColor: topColor !== undefined ? (topColor || null) : existing.topColor,
+          middleItemId: middleItemId !== undefined ? (middleItemId || null) : existing.middleItemId,
+          middleColor: middleColor !== undefined ? (middleColor || null) : existing.middleColor,
+          bottomItemId: bottomItemId !== undefined ? (bottomItemId || null) : existing.bottomItemId,
+          bottomColor: bottomColor !== undefined ? (bottomColor || null) : existing.bottomColor,
+          shoesItemId: shoesItemId !== undefined ? (shoesItemId || null) : existing.shoesItemId,
+          shoesColor: shoesColor !== undefined ? (shoesColor || null) : existing.shoesColor,
+          updatedAt: new Date(),
+        },
+        include: outfitInclude,
+      });
+      res.json(outfit);
+    } catch (error) {
+      console.error("Error updating outfit:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  }
+);
 
 // Delete outfit
 router.delete(
