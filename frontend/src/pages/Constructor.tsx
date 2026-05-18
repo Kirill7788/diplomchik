@@ -554,27 +554,6 @@ export default function Constructor() {
               Сохранить элемент
             </button>
 
-            {/* Position & Rotation Controls */}
-            <div style={{ marginTop: "16px", borderTop: "1px solid var(--border)", paddingTop: "16px" }}>
-              <div style={{ fontSize: "14px", fontWeight: 600, marginBottom: "10px" }}>Позиция и поворот</div>
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "4px", marginBottom: "10px" }}>
-                <button onClick={() => moveItem("offsetY", -3)} style={arrowBtn}>&#9650;</button>
-                <div style={{ display: "flex", gap: "4px" }}>
-                  <button onClick={() => moveItem("offsetX", -3)} style={arrowBtn}>&#9664;</button>
-                  <button onClick={resetTransform} style={{ ...arrowBtn, fontSize: "10px", width: "32px" }}>&#8634;</button>
-                  <button onClick={() => moveItem("offsetX", 3)} style={arrowBtn}>&#9654;</button>
-                </div>
-                <button onClick={() => moveItem("offsetY", 3)} style={arrowBtn}>&#9660;</button>
-              </div>
-              <div style={{ display: "flex", alignItems: "center", gap: "8px", justifyContent: "center" }}>
-                <button onClick={() => rotateItem(-5)} style={arrowBtn}>-5°</button>
-                <span style={{ fontSize: "13px", fontWeight: 600, minWidth: "40px", textAlign: "center" }}>{activeState.transform.rotation}°</span>
-                <button onClick={() => rotateItem(5)} style={arrowBtn}>+5°</button>
-              </div>
-              <div style={{ textAlign: "center", marginTop: "6px", fontSize: "11px", color: "var(--text-secondary)" }}>
-                X: {activeState.transform.offsetX}  Y: {activeState.transform.offsetY}
-              </div>
-            </div>
           </div>
         )}
       </div>
@@ -639,6 +618,45 @@ export default function Constructor() {
               </div>
             );
           })}
+
+          {/* Position & Rotation Controls — overlay near active item */}
+          {activeState.selectedItem && (() => {
+            const pos = slotPositions[activeZone];
+            const topVal = parseInt(String(pos.top) || "0", 10);
+            const hVal = parseInt(String(pos.height) || "60", 10);
+            return (
+              <div
+                style={{
+                  position: "absolute",
+                  top: `${topVal + hVal / 2 - 52}px`,
+                  right: "-110px",
+                  background: "#fff",
+                  borderRadius: "12px",
+                  boxShadow: "0 2px 12px rgba(0,0,0,0.15)",
+                  padding: "8px",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: "4px",
+                  zIndex: 10,
+                }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <button onClick={() => moveItem("offsetY", -3)} style={arrowBtn}>&#9650;</button>
+                <div style={{ display: "flex", gap: "4px" }}>
+                  <button onClick={() => moveItem("offsetX", -3)} style={arrowBtn}>&#9664;</button>
+                  <button onClick={resetTransform} style={{ ...arrowBtn, fontSize: "10px" }}>&#8634;</button>
+                  <button onClick={() => moveItem("offsetX", 3)} style={arrowBtn}>&#9654;</button>
+                </div>
+                <button onClick={() => moveItem("offsetY", 3)} style={arrowBtn}>&#9660;</button>
+                <div style={{ display: "flex", gap: "2px", marginTop: "4px" }}>
+                  <button onClick={() => rotateItem(-5)} style={{ ...arrowBtn, fontSize: "11px", width: "36px" }}>-5°</button>
+                  <span style={{ fontSize: "11px", fontWeight: 600, minWidth: "30px", textAlign: "center", lineHeight: "32px" }}>{activeState.transform.rotation}°</span>
+                  <button onClick={() => rotateItem(5)} style={{ ...arrowBtn, fontSize: "11px", width: "36px" }}>+5°</button>
+                </div>
+              </div>
+            );
+          })()}
         </div>
 
         <div style={s.actions}>
