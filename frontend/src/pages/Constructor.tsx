@@ -14,10 +14,19 @@ interface ClothingItem {
   category: { id: number; name: string; zone: string };
 }
 
+interface ZoneTransform {
+  offsetX: number;
+  offsetY: number;
+  rotation: number;
+}
+
 interface ZoneState {
   selectedItem: ClothingItem | null;
   colors: string[];
+  transform: ZoneTransform;
 }
+
+const defaultTransform: ZoneTransform = { offsetX: 0, offsetY: 0, rotation: 0 };
 
 const zones = [
   { key: "top", label: "Голова", icon: "🎩" },
@@ -252,11 +261,25 @@ const s: Record<string, CSSProperties> = {
   },
 };
 
+const arrowBtn: CSSProperties = {
+  width: "32px",
+  height: "32px",
+  borderRadius: "8px",
+  border: "1px solid var(--border)",
+  background: "#fff",
+  cursor: "pointer",
+  fontSize: "14px",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  fontWeight: 700,
+};
+
 const slotPositions: Record<ZoneKey, CSSProperties> = {
   top: { top: "0px", width: "140px", height: "70px" },
   middle: { top: "62px", width: "200px", height: "180px" },
   bottom: { top: "230px", width: "170px", height: "210px" },
-  shoes: { top: "430px", width: "180px", height: "60px" },
+  shoes: { top: "430px", width: "200px", height: "60px" },
 };
 
 const slotSizes: Record<ZoneKey, number> = {
@@ -273,10 +296,10 @@ export default function Constructor() {
   const [items, setItems] = useState<ClothingItem[]>([]);
   const [activeZone, setActiveZone] = useState<ZoneKey>("top");
   const [zoneStates, setZoneStates] = useState<Record<ZoneKey, ZoneState>>({
-    top: { selectedItem: null, colors: ["#CCCCCC"] },
-    middle: { selectedItem: null, colors: ["#CCCCCC"] },
-    bottom: { selectedItem: null, colors: ["#CCCCCC"] },
-    shoes: { selectedItem: null, colors: ["#CCCCCC"] },
+    top: { selectedItem: null, colors: ["#CCCCCC"], transform: { ...defaultTransform } },
+    middle: { selectedItem: null, colors: ["#CCCCCC"], transform: { ...defaultTransform } },
+    bottom: { selectedItem: null, colors: ["#CCCCCC"], transform: { ...defaultTransform } },
+    shoes: { selectedItem: null, colors: ["#CCCCCC"], transform: { ...defaultTransform } },
   });
   const [showSaveOutfit, setShowSaveOutfit] = useState(false);
   const [showSaveItem, setShowSaveItem] = useState(false);
@@ -293,27 +316,28 @@ export default function Constructor() {
           if (outfit) {
             setEditOutfitName(outfit.name);
             const allItems = res.data as ClothingItem[];
+            const transforms = outfit.previewData ? JSON.parse(outfit.previewData) : {};
             const newStates: Record<ZoneKey, ZoneState> = {
-              top: { selectedItem: null, colors: ["#CCCCCC"] },
-              middle: { selectedItem: null, colors: ["#CCCCCC"] },
-              bottom: { selectedItem: null, colors: ["#CCCCCC"] },
-              shoes: { selectedItem: null, colors: ["#CCCCCC"] },
+              top: { selectedItem: null, colors: ["#CCCCCC"], transform: transforms.top || { ...defaultTransform } },
+              middle: { selectedItem: null, colors: ["#CCCCCC"], transform: transforms.middle || { ...defaultTransform } },
+              bottom: { selectedItem: null, colors: ["#CCCCCC"], transform: transforms.bottom || { ...defaultTransform } },
+              shoes: { selectedItem: null, colors: ["#CCCCCC"], transform: transforms.shoes || { ...defaultTransform } },
             };
             if (outfit.topItem) {
               const found = allItems.find((i: ClothingItem) => i.id === outfit.topItem.id);
-              if (found) newStates.top = { selectedItem: found, colors: (outfit.topColor || found.defaultColor).split(",") };
+              if (found) newStates.top = { ...newStates.top, selectedItem: found, colors: (outfit.topColor || found.defaultColor).split(",") };
             }
             if (outfit.middleItem) {
               const found = allItems.find((i: ClothingItem) => i.id === outfit.middleItem.id);
-              if (found) newStates.middle = { selectedItem: found, colors: (outfit.middleColor || found.defaultColor).split(",") };
+              if (found) newStates.middle = { ...newStates.middle, selectedItem: found, colors: (outfit.middleColor || found.defaultColor).split(",") };
             }
             if (outfit.bottomItem) {
               const found = allItems.find((i: ClothingItem) => i.id === outfit.bottomItem.id);
-              if (found) newStates.bottom = { selectedItem: found, colors: (outfit.bottomColor || found.defaultColor).split(",") };
+              if (found) newStates.bottom = { ...newStates.bottom, selectedItem: found, colors: (outfit.bottomColor || found.defaultColor).split(",") };
             }
             if (outfit.shoesItem) {
               const found = allItems.find((i: ClothingItem) => i.id === outfit.shoesItem.id);
-              if (found) newStates.shoes = { selectedItem: found, colors: (outfit.shoesColor || found.defaultColor).split(",") };
+              if (found) newStates.shoes = { ...newStates.shoes, selectedItem: found, colors: (outfit.shoesColor || found.defaultColor).split(",") };
             }
             setZoneStates(newStates);
           }
@@ -328,7 +352,43 @@ export default function Constructor() {
     const colors = item.defaultColor.split(",");
     setZoneStates((prev) => ({
       ...prev,
-      [activeZone]: { selectedItem: item, colors },
+      [activeZone]: { selectedItem: item, colors, transform: { ...defaultTransform } },
+    }));
+  };
+
+  const moveItem = (axis: "offsetX" | "offsetY", delta: number) => {
+    setZoneStates((prev) => ({
+      ...prev,
+      [activeZone]: {
+        ...prev[activeZone],
+        transform: {
+          ...prev[activeZone].transform,
+          [axis]: prev[activeZone].transform[axis] + delta,
+        },
+      },
+    }));
+  };
+
+  const rotateItem = (delta: number) => {
+    setZoneStates((prev) => ({
+      ...prev,
+      [activeZone]: {
+        ...prev[activeZone],
+        transform: {
+          ...prev[activeZone].transform,
+          rotation: prev[activeZone].transform.rotation + delta,
+        },
+      },
+    }));
+  };
+
+  const resetTransform = () => {
+    setZoneStates((prev) => ({
+      ...prev,
+      [activeZone]: {
+        ...prev[activeZone],
+        transform: { ...defaultTransform },
+      },
     }));
   };
 
@@ -357,6 +417,12 @@ export default function Constructor() {
     bottomColor: zoneStates.bottom.selectedItem ? zoneStates.bottom.colors.join(",") : null,
     shoesItemId: zoneStates.shoes.selectedItem?.id || null,
     shoesColor: zoneStates.shoes.selectedItem ? zoneStates.shoes.colors.join(",") : null,
+    previewData: JSON.stringify({
+      top: zoneStates.top.transform,
+      middle: zoneStates.middle.transform,
+      bottom: zoneStates.bottom.transform,
+      shoes: zoneStates.shoes.transform,
+    }),
   });
 
   const saveOutfit = async () => {
@@ -401,10 +467,10 @@ export default function Constructor() {
 
   const clearAll = () => {
     setZoneStates({
-      top: { selectedItem: null, colors: ["#CCCCCC"] },
-      middle: { selectedItem: null, colors: ["#CCCCCC"] },
-      bottom: { selectedItem: null, colors: ["#CCCCCC"] },
-      shoes: { selectedItem: null, colors: ["#CCCCCC"] },
+      top: { selectedItem: null, colors: ["#CCCCCC"], transform: { ...defaultTransform } },
+      middle: { selectedItem: null, colors: ["#CCCCCC"], transform: { ...defaultTransform } },
+      bottom: { selectedItem: null, colors: ["#CCCCCC"], transform: { ...defaultTransform } },
+      shoes: { selectedItem: null, colors: ["#CCCCCC"], transform: { ...defaultTransform } },
     });
   };
 
@@ -487,6 +553,28 @@ export default function Constructor() {
             >
               Сохранить элемент
             </button>
+
+            {/* Position & Rotation Controls */}
+            <div style={{ marginTop: "16px", borderTop: "1px solid var(--border)", paddingTop: "16px" }}>
+              <div style={{ fontSize: "14px", fontWeight: 600, marginBottom: "10px" }}>Позиция и поворот</div>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "4px", marginBottom: "10px" }}>
+                <button onClick={() => moveItem("offsetY", -3)} style={arrowBtn}>&#9650;</button>
+                <div style={{ display: "flex", gap: "4px" }}>
+                  <button onClick={() => moveItem("offsetX", -3)} style={arrowBtn}>&#9664;</button>
+                  <button onClick={resetTransform} style={{ ...arrowBtn, fontSize: "10px", width: "32px" }}>&#8634;</button>
+                  <button onClick={() => moveItem("offsetX", 3)} style={arrowBtn}>&#9654;</button>
+                </div>
+                <button onClick={() => moveItem("offsetY", 3)} style={arrowBtn}>&#9660;</button>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px", justifyContent: "center" }}>
+                <button onClick={() => rotateItem(-5)} style={arrowBtn}>-5°</button>
+                <span style={{ fontSize: "13px", fontWeight: 600, minWidth: "40px", textAlign: "center" }}>{activeState.transform.rotation}°</span>
+                <button onClick={() => rotateItem(5)} style={arrowBtn}>+5°</button>
+              </div>
+              <div style={{ textAlign: "center", marginTop: "6px", fontSize: "11px", color: "var(--text-secondary)" }}>
+                X: {activeState.transform.offsetX}  Y: {activeState.transform.offsetY}
+              </div>
+            </div>
           </div>
         )}
       </div>
@@ -500,24 +588,49 @@ export default function Constructor() {
           />
 
           {zones.map((z) => {
-            const state = zoneStates[z.key as ZoneKey];
+            const zk = z.key as ZoneKey;
+            const state = zoneStates[zk];
+            const tf = state.transform;
+            const isShoes = zk === "shoes";
             return (
               <div
                 key={z.key}
                 style={{
                   ...s.mannequinSlot,
-                  ...slotPositions[z.key as ZoneKey],
+                  ...slotPositions[zk],
                   ...(activeZone === z.key ? s.mannequinSlotActive : {}),
+                  transform: `translateX(calc(-50% + ${tf.offsetX}px)) translateY(${tf.offsetY}px)`,
                 }}
-                onClick={() => setActiveZone(z.key as ZoneKey)}
+                onClick={() => setActiveZone(zk)}
               >
                 {state.selectedItem ? (
-                  <ClothingPreview
-                    svgTemplate={state.selectedItem.svgTemplate}
-                    color={state.colors.join(",")}
-                    size={slotSizes[z.key as ZoneKey]}
-                    transparent
-                  />
+                  isShoes ? (
+                    <div style={{ display: "flex", gap: "4px", transform: `rotate(${tf.rotation}deg)` }}>
+                      <div style={{ transform: "scaleX(-1)" }}>
+                        <ClothingPreview
+                          svgTemplate={state.selectedItem.svgTemplate}
+                          color={state.colors.join(",")}
+                          size={Math.floor(slotSizes[zk] * 0.9)}
+                          transparent
+                        />
+                      </div>
+                      <ClothingPreview
+                        svgTemplate={state.selectedItem.svgTemplate}
+                        color={state.colors.join(",")}
+                        size={Math.floor(slotSizes[zk] * 0.9)}
+                        transparent
+                      />
+                    </div>
+                  ) : (
+                    <div style={{ transform: `rotate(${tf.rotation}deg)` }}>
+                      <ClothingPreview
+                        svgTemplate={state.selectedItem.svgTemplate}
+                        color={state.colors.join(",")}
+                        size={slotSizes[zk]}
+                        transparent
+                      />
+                    </div>
+                  )
                 ) : (
                   <div style={s.placeholderSlot}>
                     {z.icon} {z.label}
