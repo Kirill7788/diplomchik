@@ -1,4 +1,5 @@
 import { useState, useEffect, CSSProperties } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 import ClothingPreview from "../components/ClothingPreview";
 
@@ -101,7 +102,8 @@ const s: Record<string, CSSProperties> = {
   },
   cardBtns: {
     display: "flex",
-    gap: "8px",
+    gap: "6px",
+    flexWrap: "wrap",
   },
   deleteBtn: {
     padding: "6px 16px",
@@ -212,11 +214,12 @@ const s: Record<string, CSSProperties> = {
 };
 
 export default function MyOutfits() {
+  const navigate = useNavigate();
   const [tab, setTab] = useState<"outfits" | "items">("outfits");
   const [outfits, setOutfits] = useState<Outfit[]>([]);
   const [savedItems, setSavedItems] = useState<SavedItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [editingOutfit, setEditingOutfit] = useState<Outfit | null>(null);
+  const [renamingOutfit, setRenamingOutfit] = useState<Outfit | null>(null);
   const [editName, setEditName] = useState("");
   const [toast, setToast] = useState("");
 
@@ -259,23 +262,27 @@ export default function MyOutfits() {
     showToast("Элемент удалён");
   };
 
-  const openEdit = (outfit: Outfit) => {
+  const openRename = (outfit: Outfit) => {
     setEditName(outfit.name);
-    setEditingOutfit(outfit);
+    setRenamingOutfit(outfit);
   };
 
-  const saveEdit = async () => {
-    if (!editingOutfit || !editName.trim()) return;
+  const saveRename = async () => {
+    if (!renamingOutfit || !editName.trim()) return;
     try {
-      await api.put(`/outfits/${editingOutfit.id}`, { name: editName });
+      await api.put(`/outfits/${renamingOutfit.id}`, { name: editName });
       setOutfits((prev) =>
-        prev.map((o) => (o.id === editingOutfit.id ? { ...o, name: editName } : o))
+        prev.map((o) => (o.id === renamingOutfit.id ? { ...o, name: editName } : o))
       );
-      setEditingOutfit(null);
-      showToast("Образ обновлён");
+      setRenamingOutfit(null);
+      showToast("Название изменено");
     } catch {
       showToast("Ошибка обновления");
     }
+  };
+
+  const editOutfit = (outfit: Outfit) => {
+    navigate(`/constructor?edit=${outfit.id}`);
   };
 
   const formatDate = (d: string) =>
@@ -360,8 +367,11 @@ export default function MyOutfits() {
                     <div style={s.cardTitle}>{outfit.name}</div>
                     <div style={s.cardDate}>{formatDate(outfit.createdAt)}</div>
                     <div style={s.cardBtns}>
-                      <button style={s.editBtn} onClick={() => openEdit(outfit)}>
+                      <button style={s.editBtn} onClick={() => editOutfit(outfit)}>
                         Редактировать
+                      </button>
+                      <button style={{ ...s.editBtn, color: "#7c3aed", background: "#f3e8ff" }} onClick={() => openRename(outfit)}>
+                        Переименовать
                       </button>
                       <button
                         style={s.deleteBtn}
@@ -437,24 +447,24 @@ export default function MyOutfits() {
         </>
       )}
 
-      {/* Edit Outfit Modal */}
-      {editingOutfit && (
-        <div style={s.modal} onClick={() => setEditingOutfit(null)}>
+      {/* Rename Outfit Modal */}
+      {renamingOutfit && (
+        <div style={s.modal} onClick={() => setRenamingOutfit(null)}>
           <div style={s.modalCard} onClick={(e) => e.stopPropagation()}>
-            <div style={s.modalTitle}>Редактировать образ</div>
+            <div style={s.modalTitle}>Переименовать образ</div>
             <input
               style={s.input}
               placeholder="Название образа"
               value={editName}
               onChange={(e) => setEditName(e.target.value)}
               autoFocus
-              onKeyDown={(e) => e.key === "Enter" && saveEdit()}
+              onKeyDown={(e) => e.key === "Enter" && saveRename()}
             />
             <div style={s.modalBtns}>
-              <button style={s.btnCancel} onClick={() => setEditingOutfit(null)}>
+              <button style={s.btnCancel} onClick={() => setRenamingOutfit(null)}>
                 Отмена
               </button>
-              <button style={s.btnSave} onClick={saveEdit}>
+              <button style={s.btnSave} onClick={saveRename}>
                 Сохранить
               </button>
             </div>

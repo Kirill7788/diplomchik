@@ -1,4 +1,5 @@
 import { useState, useEffect, CSSProperties } from "react";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import api from "../services/api";
 import ColorPicker from "../components/ColorPicker";
 import ClothingPreview, { getZoneNames } from "../components/ClothingPreview";
@@ -27,14 +28,14 @@ const zones = [
 
 type ZoneKey = (typeof zones)[number]["key"];
 
-const mannequinBodySvg = `<svg viewBox="0 0 300 750" xmlns="http://www.w3.org/2000/svg" style="opacity:0.15">
-  <ellipse cx="150" cy="58" rx="34" ry="42" fill="#c9a882" stroke="#b8956e" stroke-width="1.5"/>
-  <rect x="139" y="100" width="22" height="22" rx="6" fill="#c9a882"/>
-  <path d="M139 120 L75 142 L65 158 L62 175 L78 172 L85 155 L139 142 L139 340 L161 340 L161 142 L215 155 L222 172 L238 175 L235 158 L225 142 L161 120" fill="#c9a882" stroke="#b8956e" stroke-width="1.2"/>
-  <path d="M62 175 L55 290 L52 318 L68 320 L72 295 L78 175" fill="#c9a882" stroke="#b8956e" stroke-width="1.2"/>
-  <path d="M238 175 L245 290 L248 318 L232 320 L228 295 L222 175" fill="#c9a882" stroke="#b8956e" stroke-width="1.2"/>
-  <path d="M120 340 L115 480 L108 610 L100 640 L100 660 L160 660 L155 640 L142 610 L135 485 L142 345" fill="#c9a882" stroke="#b8956e" stroke-width="1.2"/>
-  <path d="M180 340 L185 480 L192 610 L200 640 L200 660 L140 660 L145 640 L158 610 L165 485 L158 345" fill="#c9a882" stroke="#b8956e" stroke-width="1.2"/>
+const mannequinBodySvg = `<svg viewBox="0 0 300 620" xmlns="http://www.w3.org/2000/svg" style="opacity:0.18">
+  <ellipse cx="150" cy="50" rx="30" ry="36" fill="#c9a882" stroke="#b8956e" stroke-width="1.5"/>
+  <rect x="141" y="86" width="18" height="18" rx="5" fill="#c9a882"/>
+  <path d="M141 102 L82 122 L72 136 L70 150 L84 148 L90 133 L141 120 L141 300 L159 300 L159 120 L210 133 L216 148 L230 150 L228 136 L218 122 L159 102" fill="#c9a882" stroke="#b8956e" stroke-width="1.2"/>
+  <path d="M70 150 L64 250 L62 275 L76 277 L78 255 L84 150" fill="#c9a882" stroke="#b8956e" stroke-width="1.2"/>
+  <path d="M230 150 L236 250 L238 275 L224 277 L222 255 L216 150" fill="#c9a882" stroke="#b8956e" stroke-width="1.2"/>
+  <path d="M125 300 L120 420 L114 520 L108 548 L108 570 L155 570 L150 548 L140 520 L135 425 L140 305" fill="#c9a882" stroke="#b8956e" stroke-width="1.2"/>
+  <path d="M175 300 L180 420 L186 520 L192 548 L192 570 L145 570 L150 548 L160 520 L165 425 L160 305" fill="#c9a882" stroke="#b8956e" stroke-width="1.2"/>
 </svg>`;
 
 const s: Record<string, CSSProperties> = {
@@ -137,8 +138,8 @@ const s: Record<string, CSSProperties> = {
   },
   mannequinContainer: {
     position: "relative",
-    width: "340px",
-    height: "680px",
+    width: "280px",
+    height: "510px",
   },
   mannequinBody: {
     position: "absolute",
@@ -252,20 +253,23 @@ const s: Record<string, CSSProperties> = {
 };
 
 const slotPositions: Record<ZoneKey, CSSProperties> = {
-  top: { top: "0px", width: "220px", height: "150px" },
-  middle: { top: "120px", width: "300px", height: "280px" },
-  bottom: { top: "360px", width: "280px", height: "260px" },
-  shoes: { top: "590px", width: "260px", height: "85px" },
+  top: { top: "0px", width: "140px", height: "70px" },
+  middle: { top: "62px", width: "200px", height: "180px" },
+  bottom: { top: "230px", width: "170px", height: "210px" },
+  shoes: { top: "430px", width: "180px", height: "60px" },
 };
 
 const slotSizes: Record<ZoneKey, number> = {
-  top: 150,
-  middle: 270,
-  bottom: 260,
-  shoes: 85,
+  top: 70,
+  middle: 180,
+  bottom: 210,
+  shoes: 60,
 };
 
 export default function Constructor() {
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const editOutfitId = searchParams.get("edit");
   const [items, setItems] = useState<ClothingItem[]>([]);
   const [activeZone, setActiveZone] = useState<ZoneKey>("top");
   const [zoneStates, setZoneStates] = useState<Record<ZoneKey, ZoneState>>({
@@ -277,11 +281,46 @@ export default function Constructor() {
   const [showSaveOutfit, setShowSaveOutfit] = useState(false);
   const [showSaveItem, setShowSaveItem] = useState(false);
   const [saveName, setSaveName] = useState("");
+  const [editOutfitName, setEditOutfitName] = useState("");
   const [toast, setToast] = useState("");
 
   useEffect(() => {
-    api.get("/clothing/items").then((res) => setItems(res.data));
-  }, []);
+    api.get("/clothing/items").then((res) => {
+      setItems(res.data);
+      if (editOutfitId) {
+        api.get("/outfits").then((outRes) => {
+          const outfit = outRes.data.find((o: { id: number }) => o.id === Number(editOutfitId));
+          if (outfit) {
+            setEditOutfitName(outfit.name);
+            const allItems = res.data as ClothingItem[];
+            const newStates: Record<ZoneKey, ZoneState> = {
+              top: { selectedItem: null, colors: ["#CCCCCC"] },
+              middle: { selectedItem: null, colors: ["#CCCCCC"] },
+              bottom: { selectedItem: null, colors: ["#CCCCCC"] },
+              shoes: { selectedItem: null, colors: ["#CCCCCC"] },
+            };
+            if (outfit.topItem) {
+              const found = allItems.find((i: ClothingItem) => i.id === outfit.topItem.id);
+              if (found) newStates.top = { selectedItem: found, colors: (outfit.topColor || found.defaultColor).split(",") };
+            }
+            if (outfit.middleItem) {
+              const found = allItems.find((i: ClothingItem) => i.id === outfit.middleItem.id);
+              if (found) newStates.middle = { selectedItem: found, colors: (outfit.middleColor || found.defaultColor).split(",") };
+            }
+            if (outfit.bottomItem) {
+              const found = allItems.find((i: ClothingItem) => i.id === outfit.bottomItem.id);
+              if (found) newStates.bottom = { selectedItem: found, colors: (outfit.bottomColor || found.defaultColor).split(",") };
+            }
+            if (outfit.shoesItem) {
+              const found = allItems.find((i: ClothingItem) => i.id === outfit.shoesItem.id);
+              if (found) newStates.shoes = { selectedItem: found, colors: (outfit.shoesColor || found.defaultColor).split(",") };
+            }
+            setZoneStates(newStates);
+          }
+        });
+      }
+    });
+  }, [editOutfitId]);
 
   const filteredItems = items.filter((i) => i.category.zone === activeZone);
 
@@ -309,25 +348,37 @@ export default function Constructor() {
     setTimeout(() => setToast(""), 3000);
   };
 
+  const getOutfitPayload = () => ({
+    topItemId: zoneStates.top.selectedItem?.id || null,
+    topColor: zoneStates.top.selectedItem ? zoneStates.top.colors.join(",") : null,
+    middleItemId: zoneStates.middle.selectedItem?.id || null,
+    middleColor: zoneStates.middle.selectedItem ? zoneStates.middle.colors.join(",") : null,
+    bottomItemId: zoneStates.bottom.selectedItem?.id || null,
+    bottomColor: zoneStates.bottom.selectedItem ? zoneStates.bottom.colors.join(",") : null,
+    shoesItemId: zoneStates.shoes.selectedItem?.id || null,
+    shoesColor: zoneStates.shoes.selectedItem ? zoneStates.shoes.colors.join(",") : null,
+  });
+
   const saveOutfit = async () => {
     if (!saveName.trim()) return;
     try {
-      await api.post("/outfits", {
-        name: saveName,
-        topItemId: zoneStates.top.selectedItem?.id || null,
-        topColor: zoneStates.top.selectedItem ? zoneStates.top.colors.join(",") : null,
-        middleItemId: zoneStates.middle.selectedItem?.id || null,
-        middleColor: zoneStates.middle.selectedItem ? zoneStates.middle.colors.join(",") : null,
-        bottomItemId: zoneStates.bottom.selectedItem?.id || null,
-        bottomColor: zoneStates.bottom.selectedItem ? zoneStates.bottom.colors.join(",") : null,
-        shoesItemId: zoneStates.shoes.selectedItem?.id || null,
-        shoesColor: zoneStates.shoes.selectedItem ? zoneStates.shoes.colors.join(",") : null,
-      });
+      await api.post("/outfits", { name: saveName, ...getOutfitPayload() });
       setShowSaveOutfit(false);
       setSaveName("");
       showToast("Образ сохранён!");
     } catch {
       showToast("Ошибка сохранения");
+    }
+  };
+
+  const updateOutfit = async () => {
+    if (!editOutfitId) return;
+    try {
+      await api.put(`/outfits/${editOutfitId}`, { name: editOutfitName, ...getOutfitPayload() });
+      showToast("Образ обновлён!");
+      navigate("/my-outfits");
+    } catch {
+      showToast("Ошибка обновления");
     }
   };
 
@@ -481,15 +532,21 @@ export default function Constructor() {
           <button style={s.btnSecondary} onClick={clearAll}>
             Очистить
           </button>
-          <button
-            style={s.btnSave}
-            onClick={() => {
-              setSaveName("");
-              setShowSaveOutfit(true);
-            }}
-          >
-            Сохранить образ
-          </button>
+          {editOutfitId ? (
+            <button style={s.btnSave} onClick={updateOutfit}>
+              Сохранить изменения
+            </button>
+          ) : (
+            <button
+              style={s.btnSave}
+              onClick={() => {
+                setSaveName("");
+                setShowSaveOutfit(true);
+              }}
+            >
+              Сохранить образ
+            </button>
+          )}
         </div>
       </div>
 
