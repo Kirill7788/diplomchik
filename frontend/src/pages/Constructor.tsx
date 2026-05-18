@@ -18,6 +18,7 @@ interface ZoneTransform {
   offsetX: number;
   offsetY: number;
   rotation: number;
+  scale: number;
 }
 
 interface ZoneState {
@@ -26,7 +27,7 @@ interface ZoneState {
   transform: ZoneTransform;
 }
 
-const defaultTransform: ZoneTransform = { offsetX: 0, offsetY: 0, rotation: 0 };
+const defaultTransform: ZoneTransform = { offsetX: 0, offsetY: 0, rotation: 0, scale: 1 };
 
 const zones = [
   { key: "top", label: "Голова", icon: "🎩" },
@@ -43,8 +44,8 @@ const mannequinBodySvg = `<svg viewBox="0 0 300 620" xmlns="http://www.w3.org/20
   <path d="M141 102 L82 122 L72 136 L70 150 L84 148 L90 133 L141 120 L141 300 L159 300 L159 120 L210 133 L216 148 L230 150 L228 136 L218 122 L159 102" fill="#c9a882" stroke="#b8956e" stroke-width="1.2"/>
   <path d="M70 150 L64 250 L62 275 L76 277 L78 255 L84 150" fill="#c9a882" stroke="#b8956e" stroke-width="1.2"/>
   <path d="M230 150 L236 250 L238 275 L224 277 L222 255 L216 150" fill="#c9a882" stroke="#b8956e" stroke-width="1.2"/>
-  <path d="M125 300 L120 420 L114 520 L108 548 L108 570 L155 570 L150 548 L140 520 L135 425 L140 305" fill="#c9a882" stroke="#b8956e" stroke-width="1.2"/>
-  <path d="M175 300 L180 420 L186 520 L192 548 L192 570 L145 570 L150 548 L160 520 L165 425 L160 305" fill="#c9a882" stroke="#b8956e" stroke-width="1.2"/>
+  <path d="M125 300 L120 420 L114 520 L108 548 L108 565 L100 572 L88 575 L86 580 L108 580 L112 575 L140 575 L140 548 L140 520 L135 425 L140 305" fill="#c9a882" stroke="#b8956e" stroke-width="1.2"/>
+  <path d="M175 300 L180 420 L186 520 L192 548 L192 565 L200 572 L212 575 L214 580 L192 580 L188 575 L160 575 L160 548 L160 520 L165 425 L160 305" fill="#c9a882" stroke="#b8956e" stroke-width="1.2"/>
 </svg>`;
 
 const s: Record<string, CSSProperties> = {
@@ -382,6 +383,19 @@ export default function Constructor() {
     }));
   };
 
+  const scaleItem = (delta: number) => {
+    setZoneStates((prev) => {
+      const newScale = Math.max(0.3, Math.min(3, prev[activeZone].transform.scale + delta));
+      return {
+        ...prev,
+        [activeZone]: {
+          ...prev[activeZone],
+          transform: { ...prev[activeZone].transform, scale: newScale },
+        },
+      };
+    });
+  };
+
   const resetTransform = () => {
     setZoneStates((prev) => ({
       ...prev,
@@ -584,7 +598,7 @@ export default function Constructor() {
               >
                 {state.selectedItem ? (
                   isShoes ? (
-                    <div style={{ display: "flex", gap: "4px", transform: `rotate(${tf.rotation}deg)` }}>
+                    <div style={{ display: "flex", gap: "4px", transform: `rotate(${tf.rotation}deg) scale(${tf.scale})` }}>
                       <div style={{ transform: "scaleX(-1)" }}>
                         <ClothingPreview
                           svgTemplate={state.selectedItem.svgTemplate}
@@ -601,7 +615,7 @@ export default function Constructor() {
                       />
                     </div>
                   ) : (
-                    <div style={{ transform: `rotate(${tf.rotation}deg)` }}>
+                    <div style={{ transform: `rotate(${tf.rotation}deg) scale(${tf.scale})` }}>
                       <ClothingPreview
                         svgTemplate={state.selectedItem.svgTemplate}
                         color={state.colors.join(",")}
@@ -653,6 +667,11 @@ export default function Constructor() {
                   <button onClick={() => rotateItem(-5)} style={{ ...arrowBtn, fontSize: "11px", width: "36px" }}>-5°</button>
                   <span style={{ fontSize: "11px", fontWeight: 600, minWidth: "30px", textAlign: "center", lineHeight: "32px" }}>{activeState.transform.rotation}°</span>
                   <button onClick={() => rotateItem(5)} style={{ ...arrowBtn, fontSize: "11px", width: "36px" }}>+5°</button>
+                </div>
+                <div style={{ display: "flex", gap: "2px", marginTop: "2px" }}>
+                  <button onClick={() => scaleItem(-0.1)} style={{ ...arrowBtn, fontSize: "13px", width: "36px" }}>−</button>
+                  <span style={{ fontSize: "11px", fontWeight: 600, minWidth: "36px", textAlign: "center", lineHeight: "32px" }}>{Math.round(activeState.transform.scale * 100)}%</span>
+                  <button onClick={() => scaleItem(0.1)} style={{ ...arrowBtn, fontSize: "13px", width: "36px" }}>+</button>
                 </div>
               </div>
             );
