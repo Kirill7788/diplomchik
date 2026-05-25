@@ -9,8 +9,9 @@ const styles: Record<string, CSSProperties> = {
     left: 0,
     right: 0,
     height: "64px",
-    background: "#fff",
-    borderBottom: "1px solid var(--border)",
+    background: "rgba(255,255,255,0.9)",
+    backdropFilter: "blur(10px)",
+    borderBottom: "2px solid #EDE9FE",
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
@@ -83,7 +84,7 @@ export default function Navbar() {
   return (
     <nav style={styles.nav}>
       <Link to="/" style={styles.logo}>
-        <div style={styles.logoIcon}>O</div>
+        <div style={styles.logoIcon}>&#128087;</div>
         OutfitLab
       </Link>
 
