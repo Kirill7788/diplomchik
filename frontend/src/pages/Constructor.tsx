@@ -38,14 +38,60 @@ const zones = [
 
 type ZoneKey = (typeof zones)[number]["key"];
 
-const mannequinBodySvg = `<svg viewBox="0 0 300 620" xmlns="http://www.w3.org/2000/svg" style="opacity:0.18">
-  <ellipse cx="150" cy="50" rx="30" ry="36" fill="#c9a882" stroke="#b8956e" stroke-width="1.5"/>
-  <rect x="141" y="86" width="18" height="18" rx="5" fill="#c9a882"/>
-  <path d="M141 102 L82 122 L72 136 L70 150 L84 148 L90 133 L141 120 L141 300 L159 300 L159 120 L210 133 L216 148 L230 150 L228 136 L218 122 L159 102" fill="#c9a882" stroke="#b8956e" stroke-width="1.2"/>
-  <path d="M70 150 L64 250 L62 275 L76 277 L78 255 L84 150" fill="#c9a882" stroke="#b8956e" stroke-width="1.2"/>
-  <path d="M230 150 L236 250 L238 275 L224 277 L222 255 L216 150" fill="#c9a882" stroke="#b8956e" stroke-width="1.2"/>
-  <path d="M125 300 L120 420 L114 520 L108 548 L108 565 L100 572 L88 575 L86 580 L108 580 L112 575 L140 575 L140 548 L140 520 L135 425 L140 305" fill="#c9a882" stroke="#b8956e" stroke-width="1.2"/>
-  <path d="M175 300 L180 420 L186 520 L192 548 L192 565 L200 572 L212 575 L214 580 L192 580 L188 575 L160 575 L160 548 L160 520 L165 425 L160 305" fill="#c9a882" stroke="#b8956e" stroke-width="1.2"/>
+const mannequinBodySvg = `<svg viewBox="0 0 300 620" xmlns="http://www.w3.org/2000/svg" style="opacity:0.22">
+  <!-- Hair behind body (flowing below shoulders) -->
+  <path d="M112 48 Q104 70 100 100 Q96 130 94 155 Q92 175 96 190" fill="#8B4513" stroke="#6B3410" stroke-width="1.5"/>
+  <path d="M188 48 Q196 70 200 100 Q204 130 206 155 Q208 175 204 190" fill="#8B4513" stroke="#6B3410" stroke-width="1.5"/>
+  <path d="M116 50 Q108 75 104 105 Q100 135 98 160 Q96 178 100 192" fill="#8B4513" stroke="none" opacity="0.55"/>
+  <path d="M184 50 Q192 75 196 105 Q200 135 202 160 Q204 178 200 192" fill="#8B4513" stroke="none" opacity="0.55"/>
+  <path d="M118 52 Q112 78 108 110 Q106 138 105 158" fill="none" stroke="#6B3410" stroke-width="3.5" stroke-linecap="round" opacity="0.45"/>
+  <path d="M182 52 Q188 78 192 110 Q194 138 195 158" fill="none" stroke="#6B3410" stroke-width="3.5" stroke-linecap="round" opacity="0.45"/>
+
+  <!-- Head -->
+  <ellipse cx="150" cy="52" rx="32" ry="38" fill="#FDBCB4" stroke="#E8967C" stroke-width="1.8"/>
+
+  <!-- Hair on top -->
+  <path d="M118 48 Q118 16 150 10 Q182 16 182 48 Q180 30 165 22 Q150 18 135 22 Q120 30 118 48" fill="#8B4513" stroke="#6B3410" stroke-width="1.5"/>
+  <!-- Hair sides framing face -->
+  <path d="M119 48 Q115 60 113 75 Q112 82 114 88" fill="#8B4513" stroke="#6B3410" stroke-width="1" opacity="0.9"/>
+  <path d="M181 48 Q185 60 187 75 Q188 82 186 88" fill="#8B4513" stroke="#6B3410" stroke-width="1" opacity="0.9"/>
+
+  <!-- Eyes -->
+  <circle cx="138" cy="48" r="4.5" fill="#333"/>
+  <circle cx="162" cy="48" r="4.5" fill="#333"/>
+  <circle cx="139.5" cy="46" r="1.8" fill="#fff"/>
+  <circle cx="163.5" cy="46" r="1.8" fill="#fff"/>
+
+  <!-- Smile -->
+  <path d="M140 64 Q150 74 160 64" fill="none" stroke="#E8967C" stroke-width="2" stroke-linecap="round"/>
+
+  <!-- Cheeks -->
+  <circle cx="126" cy="58" r="8" fill="rgba(255,150,150,0.35)"/>
+  <circle cx="174" cy="58" r="8" fill="rgba(255,150,150,0.35)"/>
+
+  <!-- Neck -->
+  <rect x="142" y="88" width="16" height="16" rx="5" fill="#FDBCB4" stroke="#E8967C" stroke-width="1"/>
+
+  <!-- Body / torso with curves -->
+  <path d="M118 104 Q108 108 104 122 L100 170 Q97 190 100 205 Q102 220 108 240 L112 275 Q115 295 128 300 L172 300 Q185 295 188 275 L192 240 Q198 220 200 205 Q203 190 200 170 L196 122 Q192 108 182 104 Z" fill="#FFE4E1" stroke="#FFB6C1" stroke-width="1.5" stroke-dasharray="4 2"/>
+
+  <!-- Arms -->
+  <path d="M104 116 Q86 138 76 165 Q70 185 66 205 Q64 215 69 217 Q75 219 78 210 Q84 190 90 170 Q96 150 106 133" fill="#FDBCB4" stroke="#E8967C" stroke-width="1.5"/>
+  <path d="M196 116 Q214 138 224 165 Q230 185 234 205 Q236 215 231 217 Q225 219 222 210 Q216 190 210 170 Q204 150 194 133" fill="#FDBCB4" stroke="#E8967C" stroke-width="1.5"/>
+
+  <!-- Hands -->
+  <ellipse cx="67" cy="218" rx="8" ry="6" fill="#FDBCB4" stroke="#E8967C" stroke-width="1"/>
+  <ellipse cx="233" cy="218" rx="8" ry="6" fill="#FDBCB4" stroke="#E8967C" stroke-width="1"/>
+
+  <!-- Legs -->
+  <path d="M130 300 Q128 340 124 400 Q120 450 117 505 Q115 530 114 545 L114 562 Q110 570 100 574 Q94 576 92 580 L120 580 L124 573 L144 573 L144 545 L142 505 Q140 450 138 400 Q136 350 134 305" fill="#FDBCB4" stroke="#E8967C" stroke-width="1.3"/>
+  <path d="M170 300 Q172 340 176 400 Q180 450 183 505 Q185 530 186 545 L186 562 Q190 570 200 574 Q206 576 208 580 L180 580 L176 573 L156 573 L156 545 L158 505 Q160 450 162 400 Q164 350 166 305" fill="#FDBCB4" stroke="#E8967C" stroke-width="1.3"/>
+
+  <!-- Paper tabs -->
+  <rect x="58" y="120" width="18" height="10" rx="2" fill="#FFE4E1" stroke="#FFB6C1" stroke-width="1" stroke-dasharray="3 2" transform="rotate(-20 67 125)"/>
+  <rect x="224" y="120" width="18" height="10" rx="2" fill="#FFE4E1" stroke="#FFB6C1" stroke-width="1" stroke-dasharray="3 2" transform="rotate(20 233 125)"/>
+  <rect x="100" y="420" width="14" height="10" rx="2" fill="#FFE4E1" stroke="#FFB6C1" stroke-width="1" stroke-dasharray="3 2" transform="rotate(-10 107 425)"/>
+  <rect x="186" y="420" width="14" height="10" rx="2" fill="#FFE4E1" stroke="#FFB6C1" stroke-width="1" stroke-dasharray="3 2" transform="rotate(10 193 425)"/>
 </svg>`;
 
 const s: Record<string, CSSProperties> = {
