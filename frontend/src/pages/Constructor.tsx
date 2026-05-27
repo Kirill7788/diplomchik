@@ -631,7 +631,7 @@ export default function Constructor() {
 
       {/* Center: Mannequin */}
       <div style={s.center}>
-        <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "24px", position: "absolute", top: "12px" }}>
           <span style={{ fontSize: "13px", fontWeight: 600, color: "#666" }}>Цвет волос:</span>
           {["#8B4513","#1A1A1A","#D4A017","#C62828","#F5DEB3","#E91E63","#6A1B9A","#00897B"].map((c) => (
             <div
