@@ -38,23 +38,32 @@ const zones = [
 
 type ZoneKey = (typeof zones)[number]["key"];
 
-const mannequinBodySvg = `<svg viewBox="0 0 300 620" xmlns="http://www.w3.org/2000/svg" style="opacity:0.22">
+const darkenColor = (hex: string): string => {
+  const r = Math.max(0, parseInt(hex.slice(1, 3), 16) - 40);
+  const g = Math.max(0, parseInt(hex.slice(3, 5), 16) - 40);
+  const b = Math.max(0, parseInt(hex.slice(5, 7), 16) - 40);
+  return `#${r.toString(16).padStart(2,"0")}${g.toString(16).padStart(2,"0")}${b.toString(16).padStart(2,"0")}`;
+};
+
+const buildMannequinSvg = (hair: string) => {
+  const hd = darkenColor(hair);
+  return `<svg viewBox="0 0 300 620" xmlns="http://www.w3.org/2000/svg" style="opacity:0.22">
   <!-- Hair behind body (flowing below shoulders) -->
-  <path d="M112 48 Q104 70 100 100 Q96 130 94 155 Q92 175 96 190" fill="#8B4513" stroke="#6B3410" stroke-width="1.5"/>
-  <path d="M188 48 Q196 70 200 100 Q204 130 206 155 Q208 175 204 190" fill="#8B4513" stroke="#6B3410" stroke-width="1.5"/>
-  <path d="M116 50 Q108 75 104 105 Q100 135 98 160 Q96 178 100 192" fill="#8B4513" stroke="none" opacity="0.55"/>
-  <path d="M184 50 Q192 75 196 105 Q200 135 202 160 Q204 178 200 192" fill="#8B4513" stroke="none" opacity="0.55"/>
-  <path d="M118 52 Q112 78 108 110 Q106 138 105 158" fill="none" stroke="#6B3410" stroke-width="3.5" stroke-linecap="round" opacity="0.45"/>
-  <path d="M182 52 Q188 78 192 110 Q194 138 195 158" fill="none" stroke="#6B3410" stroke-width="3.5" stroke-linecap="round" opacity="0.45"/>
+  <path d="M112 48 Q104 70 100 100 Q96 130 94 155 Q92 175 96 190" fill="${hair}" stroke="${hd}" stroke-width="1.5"/>
+  <path d="M188 48 Q196 70 200 100 Q204 130 206 155 Q208 175 204 190" fill="${hair}" stroke="${hd}" stroke-width="1.5"/>
+  <path d="M116 50 Q108 75 104 105 Q100 135 98 160 Q96 178 100 192" fill="${hair}" stroke="none" opacity="0.55"/>
+  <path d="M184 50 Q192 75 196 105 Q200 135 202 160 Q204 178 200 192" fill="${hair}" stroke="none" opacity="0.55"/>
+  <path d="M118 52 Q112 78 108 110 Q106 138 105 158" fill="none" stroke="${hd}" stroke-width="3.5" stroke-linecap="round" opacity="0.45"/>
+  <path d="M182 52 Q188 78 192 110 Q194 138 195 158" fill="none" stroke="${hd}" stroke-width="3.5" stroke-linecap="round" opacity="0.45"/>
 
   <!-- Head -->
   <ellipse cx="150" cy="52" rx="32" ry="38" fill="#FDBCB4" stroke="#E8967C" stroke-width="1.8"/>
 
   <!-- Hair on top -->
-  <path d="M118 48 Q118 16 150 10 Q182 16 182 48 Q180 30 165 22 Q150 18 135 22 Q120 30 118 48" fill="#8B4513" stroke="#6B3410" stroke-width="1.5"/>
+  <path d="M118 48 Q118 16 150 10 Q182 16 182 48 Q180 30 165 22 Q150 18 135 22 Q120 30 118 48" fill="${hair}" stroke="${hd}" stroke-width="1.5"/>
   <!-- Hair sides framing face -->
-  <path d="M119 48 Q115 60 113 75 Q112 82 114 88" fill="#8B4513" stroke="#6B3410" stroke-width="1" opacity="0.9"/>
-  <path d="M181 48 Q185 60 187 75 Q188 82 186 88" fill="#8B4513" stroke="#6B3410" stroke-width="1" opacity="0.9"/>
+  <path d="M119 48 Q115 60 113 75 Q112 82 114 88" fill="${hair}" stroke="${hd}" stroke-width="1" opacity="0.9"/>
+  <path d="M181 48 Q185 60 187 75 Q188 82 186 88" fill="${hair}" stroke="${hd}" stroke-width="1" opacity="0.9"/>
 
   <!-- Eyes -->
   <circle cx="138" cy="48" r="4.5" fill="#333"/>
@@ -93,6 +102,7 @@ const mannequinBodySvg = `<svg viewBox="0 0 300 620" xmlns="http://www.w3.org/20
   <rect x="100" y="420" width="14" height="10" rx="2" fill="#FFE4E1" stroke="#FFB6C1" stroke-width="1" stroke-dasharray="3 2" transform="rotate(-10 107 425)"/>
   <rect x="186" y="420" width="14" height="10" rx="2" fill="#FFE4E1" stroke="#FFB6C1" stroke-width="1" stroke-dasharray="3 2" transform="rotate(10 193 425)"/>
 </svg>`;
+};
 
 const s: Record<string, CSSProperties> = {
   page: {
@@ -348,6 +358,7 @@ export default function Constructor() {
     bottom: { selectedItem: null, colors: ["#CCCCCC"], transform: { ...defaultTransform } },
     shoes: { selectedItem: null, colors: ["#CCCCCC"], transform: { ...defaultTransform } },
   });
+  const [hairColor, setHairColor] = useState("#8B4513");
   const [showSaveOutfit, setShowSaveOutfit] = useState(false);
   const [showSaveItem, setShowSaveItem] = useState(false);
   const [saveName, setSaveName] = useState("");
@@ -620,10 +631,30 @@ export default function Constructor() {
 
       {/* Center: Mannequin */}
       <div style={s.center}>
+        <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
+          <span style={{ fontSize: "13px", fontWeight: 600, color: "#666" }}>Цвет волос:</span>
+          {["#8B4513","#1A1A1A","#D4A017","#C62828","#F5DEB3","#E91E63","#6A1B9A","#00897B"].map((c) => (
+            <div
+              key={c}
+              onClick={() => setHairColor(c)}
+              style={{
+                width: 22, height: 22, borderRadius: "50%", background: c, cursor: "pointer",
+                border: hairColor === c ? "3px solid var(--primary)" : "2px solid #ccc",
+                boxSizing: "border-box",
+              }}
+            />
+          ))}
+          <input
+            type="color"
+            value={hairColor}
+            onChange={(e) => setHairColor(e.target.value)}
+            style={{ width: 26, height: 26, border: "none", cursor: "pointer", padding: 0, background: "none" }}
+          />
+        </div>
         <div style={s.mannequinContainer}>
           <div
             style={s.mannequinBody}
-            dangerouslySetInnerHTML={{ __html: mannequinBodySvg }}
+            dangerouslySetInnerHTML={{ __html: buildMannequinSvg(hairColor) }}
           />
 
           {zones.map((z) => {
