@@ -72,20 +72,20 @@ const mannequinBodySvg = `<svg viewBox="0 0 300 620" xmlns="http://www.w3.org/20
   <!-- Neck -->
   <rect x="142" y="88" width="16" height="16" rx="5" fill="#FDBCB4" stroke="#E8967C" stroke-width="1"/>
 
-  <!-- Body / torso with curves -->
-  <path d="M118 104 Q108 108 104 122 L100 170 Q97 190 100 205 Q102 220 108 240 L112 275 Q115 295 128 300 L172 300 Q185 295 188 275 L192 240 Q198 220 200 205 Q203 190 200 170 L196 122 Q192 108 182 104 Z" fill="#FFE4E1" stroke="#FFB6C1" stroke-width="1.5" stroke-dasharray="4 2"/>
+  <!-- Body / torso — feminine figure with waist and hips -->
+  <path d="M120 104 Q108 108 104 122 L100 155 Q96 170 98 180 Q102 195 110 200 Q104 215 100 240 L98 270 Q100 295 128 302 L172 302 Q200 295 202 270 L200 240 Q196 215 190 200 Q198 195 202 180 Q204 170 200 155 L196 122 Q192 108 180 104 Z" fill="#FFE4E1" stroke="#FFB6C1" stroke-width="1.5" stroke-dasharray="4 2"/>
 
-  <!-- Arms -->
-  <path d="M104 116 Q86 138 76 165 Q70 185 66 205 Q64 215 69 217 Q75 219 78 210 Q84 190 90 170 Q96 150 106 133" fill="#FDBCB4" stroke="#E8967C" stroke-width="1.5"/>
-  <path d="M196 116 Q214 138 224 165 Q230 185 234 205 Q236 215 231 217 Q225 219 222 210 Q216 190 210 170 Q204 150 194 133" fill="#FDBCB4" stroke="#E8967C" stroke-width="1.5"/>
+  <!-- Arms — slender -->
+  <path d="M104 116 Q88 136 78 160 Q72 178 68 198 Q66 208 70 210 Q75 212 78 204 Q83 186 89 168 Q95 148 106 132" fill="#FDBCB4" stroke="#E8967C" stroke-width="1.4"/>
+  <path d="M196 116 Q212 136 222 160 Q228 178 232 198 Q234 208 230 210 Q225 212 222 204 Q217 186 211 168 Q205 148 194 132" fill="#FDBCB4" stroke="#E8967C" stroke-width="1.4"/>
 
   <!-- Hands -->
-  <ellipse cx="67" cy="218" rx="8" ry="6" fill="#FDBCB4" stroke="#E8967C" stroke-width="1"/>
-  <ellipse cx="233" cy="218" rx="8" ry="6" fill="#FDBCB4" stroke="#E8967C" stroke-width="1"/>
+  <ellipse cx="69" cy="211" rx="7" ry="5.5" fill="#FDBCB4" stroke="#E8967C" stroke-width="1"/>
+  <ellipse cx="231" cy="211" rx="7" ry="5.5" fill="#FDBCB4" stroke="#E8967C" stroke-width="1"/>
 
-  <!-- Legs -->
-  <path d="M130 300 Q128 340 124 400 Q120 450 117 505 Q115 530 114 545 L114 562 Q110 570 100 574 Q94 576 92 580 L120 580 L124 573 L144 573 L144 545 L142 505 Q140 450 138 400 Q136 350 134 305" fill="#FDBCB4" stroke="#E8967C" stroke-width="1.3"/>
-  <path d="M170 300 Q172 340 176 400 Q180 450 183 505 Q185 530 186 545 L186 562 Q190 570 200 574 Q206 576 208 580 L180 580 L176 573 L156 573 L156 545 L158 505 Q160 450 162 400 Q164 350 166 305" fill="#FDBCB4" stroke="#E8967C" stroke-width="1.3"/>
+  <!-- Legs — slender feminine -->
+  <path d="M130 302 Q128 340 125 400 Q122 450 119 505 Q117 530 116 545 L116 562 Q112 570 102 574 Q96 576 94 580 L120 580 L124 573 L143 573 L143 545 L141 505 Q139 450 137 400 Q135 350 133 307" fill="#FDBCB4" stroke="#E8967C" stroke-width="1.3"/>
+  <path d="M170 302 Q172 340 175 400 Q178 450 181 505 Q183 530 184 545 L184 562 Q188 570 198 574 Q204 576 206 580 L180 580 L176 573 L157 573 L157 545 L159 505 Q161 450 163 400 Q165 350 167 307" fill="#FDBCB4" stroke="#E8967C" stroke-width="1.3"/>
 
   <!-- Paper tabs -->
   <rect x="58" y="120" width="18" height="10" rx="2" fill="#FFE4E1" stroke="#FFB6C1" stroke-width="1" stroke-dasharray="3 2" transform="rotate(-20 67 125)"/>

@@ -291,6 +291,79 @@ const svgTemplates = {
     <path d="M70 112 L55 165 L72 170 L82 118" fill="FILL_COLOR_3" stroke="#333" stroke-width="2.5"/>
     <path d="M50 162 L78 172 L78 175 L48 168 Z" fill="FILL_COLOR_2" stroke="#333" stroke-width="1.5"/>
   </svg>`,
+
+  // ==================== FEMININE ITEMS ====================
+
+  cloche: `<svg viewBox="0 0 300 220" data-zones="Основа,Лента,Цветок" xmlns="http://www.w3.org/2000/svg">
+    <path d="M75 160 Q75 45 150 30 Q225 45 225 160" fill="FILL_COLOR_1" stroke="#333" stroke-width="2.5"/>
+    <ellipse cx="150" cy="160" rx="90" ry="18" fill="FILL_COLOR_1" stroke="#333" stroke-width="2"/>
+    <rect x="72" y="138" width="156" height="16" rx="3" fill="FILL_COLOR_2" stroke="#333" stroke-width="1.5"/>
+    <circle cx="210" cy="146" r="12" fill="FILL_COLOR_3" stroke="#333" stroke-width="1.5"/>
+    <circle cx="210" cy="146" r="5" fill="#333" opacity="0.3"/>
+  </svg>`,
+
+  bow: `<svg viewBox="0 0 300 140" data-zones="Бант,Центр" xmlns="http://www.w3.org/2000/svg">
+    <path d="M150 70 Q100 20 50 40 Q20 55 40 80 Q60 105 150 70" fill="FILL_COLOR_1" stroke="#333" stroke-width="2"/>
+    <path d="M150 70 Q200 20 250 40 Q280 55 260 80 Q240 105 150 70" fill="FILL_COLOR_1" stroke="#333" stroke-width="2"/>
+    <ellipse cx="150" cy="70" rx="15" ry="12" fill="FILL_COLOR_2" stroke="#333" stroke-width="2"/>
+    <path d="M140 82 L135 115 Q135 120 140 120 L160 120 Q165 120 165 115 L160 82" fill="FILL_COLOR_1" stroke="#333" stroke-width="1.5"/>
+  </svg>`,
+
+  cropTop: `<svg viewBox="0 0 300 240" data-zones="Основа,Бретели" xmlns="http://www.w3.org/2000/svg">
+    <path d="M95 50 L70 50 L70 230 Q70 238 80 238 L220 238 Q230 238 230 230 L230 50 L205 50 Q190 75 150 75 Q110 75 95 50 Z" fill="FILL_COLOR_1" stroke="#333" stroke-width="2.5"/>
+    <path d="M95 50 Q100 20 120 10 L130 10 L110 50" fill="FILL_COLOR_2" stroke="#333" stroke-width="2"/>
+    <path d="M205 50 Q200 20 180 10 L170 10 L190 50" fill="FILL_COLOR_2" stroke="#333" stroke-width="2"/>
+    <line x1="72" y1="232" x2="228" y2="232" stroke="#333" stroke-width="1.5" opacity="0.3"/>
+  </svg>`,
+
+  blouse: `<svg viewBox="0 0 300 320" data-zones="Основа,Рукава,Воротник" xmlns="http://www.w3.org/2000/svg">
+    <path d="M90 30 L65 30 L65 310 L235 310 L235 30 L210 30 Q195 58 150 58 Q105 58 90 30 Z" fill="FILL_COLOR_1" stroke="#333" stroke-width="2.5"/>
+    <path d="M65 30 L15 65 Q5 72 15 82 L45 100 L65 70" fill="FILL_COLOR_2" stroke="#333" stroke-width="2.5"/>
+    <path d="M235 30 L285 65 Q295 72 285 82 L255 100 L235 70" fill="FILL_COLOR_2" stroke="#333" stroke-width="2.5"/>
+    <path d="M90 30 Q100 18 120 12 L135 22 L150 15 L165 22 L180 12 Q200 18 210 30" fill="FILL_COLOR_3" stroke="#333" stroke-width="2"/>
+    <circle cx="150" cy="80" r="3.5" fill="#333" opacity="0.4"/>
+    <circle cx="150" cy="120" r="3.5" fill="#333" opacity="0.4"/>
+    <circle cx="150" cy="160" r="3.5" fill="#333" opacity="0.4"/>
+    <circle cx="150" cy="200" r="3.5" fill="#333" opacity="0.4"/>
+  </svg>`,
+
+  dress: `<svg viewBox="0 0 300 420" data-zones="Верх,Юбка,Пояс" xmlns="http://www.w3.org/2000/svg">
+    <path d="M100 30 Q105 15 125 8 L130 8 L115 45" fill="FILL_COLOR_1" stroke="#333" stroke-width="2"/>
+    <path d="M200 30 Q195 15 175 8 L170 8 L185 45" fill="FILL_COLOR_1" stroke="#333" stroke-width="2"/>
+    <path d="M100 30 L80 30 L80 180 L30 410 Q28 418 38 418 L262 418 Q272 418 270 410 L220 180 L220 30 L200 30 Q188 60 150 60 Q112 60 100 30 Z" fill="FILL_COLOR_1" stroke="#333" stroke-width="2.5"/>
+    <rect x="78" y="170" width="144" height="16" rx="3" fill="FILL_COLOR_3" stroke="#333" stroke-width="1.8"/>
+    <path d="M80 186 L30 410" fill="none" stroke="#333" stroke-width="1" opacity="0.2"/>
+    <path d="M220 186 L270 410" fill="none" stroke="#333" stroke-width="1" opacity="0.2"/>
+    <path d="M150 186 L150 410" fill="none" stroke="#333" stroke-width="1" opacity="0.15"/>
+    <path d="M80 186 Q150 200 220 186" fill="FILL_COLOR_2" stroke="none" opacity="0.15"/>
+  </svg>`,
+
+  sundress: `<svg viewBox="0 0 300 400" data-zones="Основа,Бретели,Рюши" xmlns="http://www.w3.org/2000/svg">
+    <path d="M90 60 L85 170 L40 390 Q38 398 48 398 L252 398 Q262 398 260 390 L215 170 L210 60 Q195 80 150 80 Q105 80 90 60 Z" fill="FILL_COLOR_1" stroke="#333" stroke-width="2.5"/>
+    <path d="M105 60 Q110 20 130 8 L135 28" fill="none" stroke="FILL_COLOR_2" stroke-width="5" stroke-linecap="round"/>
+    <path d="M195 60 Q190 20 170 8 L165 28" fill="none" stroke="FILL_COLOR_2" stroke-width="5" stroke-linecap="round"/>
+    <path d="M40 385 Q90 370 150 375 Q210 370 260 385" fill="none" stroke="FILL_COLOR_3" stroke-width="3" opacity="0.6"/>
+    <path d="M42 392 Q95 378 150 382 Q205 378 258 392" fill="none" stroke="FILL_COLOR_3" stroke-width="2" opacity="0.4"/>
+  </svg>`,
+
+  miniSkirt: `<svg viewBox="0 0 300 220" data-zones="Основа,Пояс" xmlns="http://www.w3.org/2000/svg">
+    <path d="M70 30 L50 210 Q48 218 58 218 L242 218 Q252 218 250 210 L230 30 Z" fill="FILL_COLOR_1" stroke="#333" stroke-width="2.5"/>
+    <rect x="68" y="22" width="164" height="18" rx="4" fill="FILL_COLOR_2" stroke="#333" stroke-width="2"/>
+    <path d="M150 40 L150 210" fill="none" stroke="#333" stroke-width="1.5" opacity="0.2"/>
+  </svg>`,
+
+  balletFlats: `<svg viewBox="0 0 300 130" data-zones="Основа,Бант" xmlns="http://www.w3.org/2000/svg">
+    <path d="M50 40 Q50 15 120 10 L200 10 Q270 15 280 45 L285 55 Q298 65 298 78 L298 85 Q298 95 285 100 L60 100 Q45 100 45 88 L45 75 Q45 60 50 50 Z" fill="FILL_COLOR_1" stroke="#333" stroke-width="2.5"/>
+    <path d="M140 35 Q150 28 160 35" fill="none" stroke="FILL_COLOR_2" stroke-width="3"/>
+    <circle cx="150" cy="40" r="5" fill="FILL_COLOR_2" stroke="#333" stroke-width="1.5"/>
+    <path d="M55 95 L290 95" fill="none" stroke="#333" stroke-width="1.2" opacity="0.3"/>
+  </svg>`,
+
+  platformShoes: `<svg viewBox="0 0 300 180" data-zones="Основа,Платформа,Ремешок" xmlns="http://www.w3.org/2000/svg">
+    <path d="M55 35 Q55 10 120 5 L200 5 Q255 10 260 40 L265 50 Q285 58 285 75 L285 85 Q285 95 270 95 L65 95 Q50 95 50 85 Z" fill="FILL_COLOR_1" stroke="#333" stroke-width="2.5"/>
+    <path d="M45 88 Q45 78 55 78 L275 78 Q285 78 285 88 L285 130 Q285 145 270 150 L60 150 Q45 150 45 135 Z" fill="FILL_COLOR_2" stroke="#333" stroke-width="2.5"/>
+    <path d="M100 5 L100 45 Q100 55 110 55 L190 55 Q200 55 200 45 L200 5" fill="none" stroke="FILL_COLOR_3" stroke-width="4"/>
+  </svg>`,
 };
 
 export async function seed() {
@@ -352,6 +425,8 @@ export async function seed() {
     { name: "Повязка", categoryId: topCategory.id, svg: svgTemplates.headband, color: "#DC2626,#FFFFFF" },
     { name: "Бандана", categoryId: topCategory.id, svg: svgTemplates.bandana, color: "#7C3AED,#6D28D9" },
     { name: "Федора", categoryId: topCategory.id, svg: svgTemplates.fedora, color: "#78350F,#5F2F0E,#1F2937" },
+    { name: "Клош", categoryId: topCategory.id, svg: svgTemplates.cloche, color: "#F9A8D4,#DB2777,#FBBF24" },
+    { name: "Бантик", categoryId: topCategory.id, svg: svgTemplates.bow, color: "#F472B6,#EC4899" },
     // Torso (11)
     { name: "Футболка", categoryId: middleCategory.id, svg: svgTemplates.tshirt, color: "#FFFFFF,#FFFFFF,#FFFFFF" },
     { name: "Толстовка", categoryId: middleCategory.id, svg: svgTemplates.hoodie, color: "#6B7280,#4B5563,#374151" },
@@ -363,6 +438,10 @@ export async function seed() {
     { name: "Бомбер", categoryId: middleCategory.id, svg: svgTemplates.bomber, color: "#064E3B,#1F2937,#D97706" },
     { name: "Поло", categoryId: middleCategory.id, svg: svgTemplates.polo, color: "#1D4ED8,#FFFFFF,#1D4ED8" },
     { name: "Майка", categoryId: middleCategory.id, svg: svgTemplates.tankTop, color: "#1F2937,#374151" },
+    { name: "Кроп-топ", categoryId: middleCategory.id, svg: svgTemplates.cropTop, color: "#F472B6,#EC4899" },
+    { name: "Блузка", categoryId: middleCategory.id, svg: svgTemplates.blouse, color: "#FECDD3,#FCA5A5,#FFFFFF" },
+    { name: "Платье", categoryId: middleCategory.id, svg: svgTemplates.dress, color: "#C084FC,#A855F7,#FBBF24" },
+    { name: "Сарафан", categoryId: middleCategory.id, svg: svgTemplates.sundress, color: "#FDE68A,#F59E0B,#FCA5A5" },
     // Bottom (8)
     { name: "Джинсы", categoryId: bottomCategory.id, svg: svgTemplates.jeans, color: "#1E40AF,#F59E0B" },
     { name: "Шорты", categoryId: bottomCategory.id, svg: svgTemplates.shorts, color: "#059669,#047857" },
@@ -371,12 +450,15 @@ export async function seed() {
     { name: "Брюки", categoryId: bottomCategory.id, svg: svgTemplates.trousers, color: "#1F2937,#374151,#1F2937" },
     { name: "Карго", categoryId: bottomCategory.id, svg: svgTemplates.cargo, color: "#65712B,#4D5522,#8B6914" },
     { name: "Леггинсы", categoryId: bottomCategory.id, svg: svgTemplates.leggings, color: "#111827,#374151" },
+    { name: "Мини-юбка", categoryId: bottomCategory.id, svg: svgTemplates.miniSkirt, color: "#EC4899,#BE185D" },
     // Shoes (5)
     { name: "Кроссовки", categoryId: shoesCategory.id, svg: svgTemplates.sneakers, color: "#FFFFFF,#1F2937,#DC2626" },
     { name: "Ботинки", categoryId: shoesCategory.id, svg: svgTemplates.boots, color: "#78350F,#1F2937,#D4A574" },
     { name: "Сандалии", categoryId: shoesCategory.id, svg: svgTemplates.sandals, color: "#92400E,#D4A574" },
     { name: "Лоферы", categoryId: shoesCategory.id, svg: svgTemplates.loafers, color: "#1F2937,#374151" },
     { name: "Туфли", categoryId: shoesCategory.id, svg: svgTemplates.highHeels, color: "#DC2626,#1F2937,#DC2626" },
+    { name: "Балетки", categoryId: shoesCategory.id, svg: svgTemplates.balletFlats, color: "#F9A8D4,#EC4899" },
+    { name: "Платформы", categoryId: shoesCategory.id, svg: svgTemplates.platformShoes, color: "#A855F7,#7C3AED,#FBBF24" },
   ];
 
   for (const item of items) {
