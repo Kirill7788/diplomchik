@@ -1,7 +1,7 @@
 {
   "name": "outfit-constructor-server",
   "version": "1.0.0",
-  "description": "Backend for Outfit Constructor app",
+  "description": "Backend for To Be Clad app",
   "main": "dist/index.js",
   "scripts": {
     "dev": "tsx watch src/index.ts",

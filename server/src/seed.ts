@@ -293,10 +293,15 @@ const svgTemplates = {
   </svg>`,
 };
 
-async function seed() {
+export async function seed() {
+  const itemCount = await prisma.clothingItem.count();
+  if (itemCount > 0) {
+    console.log("Database already seeded, skipping...");
+    return;
+  }
+
   console.log("Seeding database...");
 
-  // Create admin
   const adminPassword = await bcrypt.hash("admin123", 10);
   await prisma.user.upsert({
     where: { username: "admin" },
@@ -310,7 +315,6 @@ async function seed() {
   });
   console.log("Admin user created: admin");
 
-  // Create demo user
   const demoPassword = await bcrypt.hash("demo123", 10);
   await prisma.user.upsert({
     where: { username: "demo" },
@@ -324,7 +328,6 @@ async function seed() {
   });
   console.log("Demo user created: demo");
 
-  // Create categories
   const topCategory = await prisma.clothingCategory.create({
     data: { name: "Головные уборы", zone: "top", displayOrder: 1 },
   });
@@ -391,6 +394,8 @@ async function seed() {
   console.log("Seed completed!");
 }
 
-seed()
-  .catch(console.error)
-  .finally(() => prisma.$disconnect());
+if (require.main === module || process.argv[1]?.endsWith("seed.ts")) {
+  seed()
+    .catch(console.error)
+    .finally(() => prisma.$disconnect());
+}

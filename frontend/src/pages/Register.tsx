@@ -110,7 +110,7 @@ export default function Register() {
     <div style={styles.container}>
       <div style={styles.card}>
         <h1 style={styles.title}>Регистрация</h1>
-        <p style={styles.subtitle}>Создайте аккаунт OutfitLab</p>
+        <p style={styles.subtitle}>Создайте аккаунт To Be Clad</p>
         <form onSubmit={handleSubmit}>
           {error && <p style={styles.error}>{error}</p>}
           <div style={styles.field}>

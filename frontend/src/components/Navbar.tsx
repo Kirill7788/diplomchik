@@ -85,7 +85,7 @@ export default function Navbar() {
     <nav style={styles.nav}>
       <Link to="/" style={styles.logo}>
         <div style={styles.logoIcon}>&#128087;</div>
-        OutfitLab
+        To Be Clad
       </Link>
 
       <div style={styles.links}>

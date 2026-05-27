@@ -440,7 +440,7 @@ export default function Landing() {
       </div>
 
       <div style={styles.footer}>
-        &#10024; OutfitLab &copy; {new Date().getFullYear()} — Одень куколку! &#10024;
+        &#10024; To Be Clad &copy; {new Date().getFullYear()} — Одень куколку! &#10024;
       </div>
     </div>
   );

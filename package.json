@@ -1,8 +1,8 @@
 {
-  "name": "outfit-constructor",
+  "name": "to-be-clad",
   "version": "1.0.0",
   "private": true,
-  "description": "Pinterest-style outfit constructor with mannequin, color customization, and admin panel",
+  "description": "To Be Clad — онлайн-конструктор образов в стиле бумажных кукол",
   "scripts": {
     "install:all": "cd server && npm install && cd ../frontend && npm install",
     "build:frontend": "cd frontend && npx vite build",
