@@ -359,6 +359,7 @@ export default function Constructor() {
     shoes: { selectedItem: null, colors: ["#CCCCCC"], transform: { ...defaultTransform } },
   });
   const [hairColor, setHairColor] = useState("#8B4513");
+  const [hideZones, setHideZones] = useState(false);
   const [showSaveOutfit, setShowSaveOutfit] = useState(false);
   const [showSaveItem, setShowSaveItem] = useState(false);
   const [saveName, setSaveName] = useState("");
@@ -668,10 +669,12 @@ export default function Constructor() {
                 style={{
                   ...s.mannequinSlot,
                   ...slotPositions[zk],
-                  ...(activeZone === z.key ? s.mannequinSlotActive : {}),
+                  ...(activeZone === z.key && !hideZones ? s.mannequinSlotActive : {}),
                   transform: `translateX(calc(-50% + ${tf.offsetX}px)) translateY(${tf.offsetY}px)`,
+                  border: hideZones ? "none" : undefined,
+                  pointerEvents: hideZones ? "none" : undefined,
                 }}
-                onClick={() => setActiveZone(zk)}
+                onClick={() => !hideZones && setActiveZone(zk)}
               >
                 {state.selectedItem ? (
                   isShoes ? (
@@ -702,16 +705,18 @@ export default function Constructor() {
                     </div>
                   )
                 ) : (
-                  <div style={s.placeholderSlot}>
-                    {z.icon} {z.label}
-                  </div>
+                  hideZones ? null : (
+                    <div style={s.placeholderSlot}>
+                      {z.icon} {z.label}
+                    </div>
+                  )
                 )}
               </div>
             );
           })}
 
           {/* Position & Rotation Controls — overlay near active item */}
-          {activeState.selectedItem && (() => {
+          {!hideZones && activeState.selectedItem && (() => {
             const pos = slotPositions[activeZone];
             const topVal = parseInt(String(pos.top) || "0", 10);
             const hVal = parseInt(String(pos.height) || "60", 10);
@@ -756,6 +761,13 @@ export default function Constructor() {
         </div>
 
         <div style={s.actions}>
+          <button
+            style={{ ...s.btnSecondary, fontSize: "18px", padding: "10px 16px" }}
+            onClick={() => setHideZones(!hideZones)}
+            title={hideZones ? "Показать зоны" : "Скрыть зоны"}
+          >
+            {hideZones ? "👁" : "👁‍🗨"}
+          </button>
           <button style={s.btnSecondary} onClick={clearAll}>
             Очистить
           </button>
